@@ -19,7 +19,9 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .brand-mark { display: grid; width: 38px; height: 38px; place-items: center; color: #f7f0df; font-family: "LXGW WenKai Mono TC", serif; font-size: 20px; background: #2f5b45; border-radius: 12px 12px 12px 3px; transform: rotate(-4deg); }
 .brand strong { display: block; letter-spacing: .08em; font-size: 15px; }
 .brand small { color: #708074; font-size: 11px; }
-.role-switch { display: flex; max-width: 62%; overflow: auto; border: 1px solid #ddd2bb; border-radius: 18px; padding: 3px; background: #fcf8ed; }
+.header-actions { display: flex; align-items: center; gap: 8px; max-width: 70%; }
+.guide-entry { min-height: 34px; padding: 7px 10px; color: #2f5b45; font-size: 12px; font-weight: 800; white-space: nowrap; background: #e7efdf; border: 1px solid #cbd9c4; border-radius: 12px 12px 4px 12px; }
+.role-switch { display: flex; overflow: auto; border: 1px solid #ddd2bb; border-radius: 18px; padding: 3px; background: #fcf8ed; }
 .role-button { white-space: nowrap; padding: 7px 10px; color: #607065; font-size: 11px; background: transparent; border-radius: 14px; }
 .role-button.is-active { color: #fff8ea; background: #2f5b45; }
 .nav-strip { display: flex; gap: 5px; padding: 9px clamp(14px, 3vw, 34px); overflow-x: auto; border-top: 1px solid #e5dac5; border-bottom: 1px solid #e5dac5; background: #f2ead8; }
@@ -196,19 +198,50 @@ footer { display: flex; justify-content: space-between; gap: 12px; padding: 16px
 .profile-paper h2 { margin: 0 0 6px; font-family: "LXGW WenKai Mono TC", serif; font-size: 23px; }
 .profile-paper span { color: #718075; font-size: 12px; }
 .profile-paper button { display: block; margin-top: 10px; }
+.guide-route { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 0 0 28px; }
+.guide-route article { display: flex; gap: 10px; min-height: 106px; padding: 16px; background: #f0f3e7; border-radius: 7px 20px 20px 20px; }
+.guide-route article:nth-child(2) { background: #fff0bd; border-radius: 20px 7px 20px 20px; }
+.guide-route article:nth-child(3) { color: #fff9ed; background: #2f5b45; border-radius: 20px 20px 7px 20px; }
+.guide-route b { color: #d86f45; font-family: "LXGW WenKai Mono TC", serif; font-size: 24px; line-height: 1; }
+.guide-route article:nth-child(3) b { color: #f2c14e; }
+.guide-route strong, .guide-route span { display: block; }
+.guide-route strong { font-family: "LXGW WenKai Mono TC", serif; font-size: 18px; }
+.guide-route span { margin-top: 5px; color: #66756a; font-size: 12px; line-height: 1.65; }
+.guide-route article:nth-child(3) span { color: #e6d8b9; }
+.guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.guide-card { display: flex; flex-direction: column; align-items: flex-start; min-height: 184px; padding: 17px; background: #fffaf0; border: 1px solid #e7dac2; border-radius: 20px 8px 20px 20px; transition: border-color .2s ease, box-shadow .2s ease; }
+.guide-card:hover { border-color: #b9cbb5; box-shadow: 0 8px 19px rgba(47, 91, 69, .1); }
+.guide-card-copy { flex: 1; }
+.guide-card p { margin: 0 0 5px; color: #d86f45; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
+.guide-card h2 { margin: 0; font-family: "LXGW WenKai Mono TC", serif; font-size: 22px; }
+.guide-card span { display: block; margin-top: 7px; color: #68776c; font-size: 12px; line-height: 1.7; }
+.guide-card .soft-button { min-height: 38px; margin-top: 14px; }
+.guide-note { margin-top: 18px; }
+.guide-overlay { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(37, 59, 44, .58); }
+.guide-dialog { width: min(450px, 100%); padding: clamp(24px, 6vw, 36px); text-align: center; background: #fffaf0; border: 1px solid #eadcc3; border-radius: 12px 32px 32px 32px; box-shadow: 0 24px 60px rgba(26, 43, 31, .32); }
+.guide-dialog > p { margin: 0 0 7px; color: #d86f45; font-size: 12px; font-weight: 800; letter-spacing: .09em; }
+.guide-dialog h2 { margin: 0; color: #2f5b45; font-family: "LXGW WenKai Mono TC", serif; font-size: clamp(26px, 7vw, 34px); line-height: 1.25; }
+.guide-dialog > span { display: block; margin: 12px auto 18px; color: #66756a; font-size: 13px; line-height: 1.75; }
+.guide-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 20px; }
+.guide-preview strong { display: grid; min-height: 58px; place-items: center; padding: 8px; color: #2f5b45; font-size: 12px; background: #e7efdf; border-radius: 10px; }
+.guide-preview strong:nth-child(2) { color: #875e17; background: #fff0bd; }
+.guide-preview strong:nth-child(3) { color: #fff9ed; background: #d86f45; }
+.guide-dialog .primary-button { width: 100%; min-height: 45px; }
+.guide-skip { display: block; width: 100%; min-height: 38px; margin-top: 8px; text-align: center; }
 .empty-state { padding: 22px; color: #758176; text-align: center; font-size: 13px; line-height: 1.7; border: 1px dashed #c7b99e; border-radius: 12px; }
 .toast { position: fixed; z-index: 5; bottom: 26px; left: 50%; max-width: calc(100% - 40px); padding: 11px 15px; color: #fff9ed; font-size: 13px; background: #27332d; border-radius: 22px; box-shadow: 0 8px 30px rgba(39, 51, 45, .24); transform: translateX(-50%); animation: toast-in .2s ease-out; }
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 9px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 @media (max-width: 720px) {
   .topbar { align-items: flex-start; flex-direction: column; gap: 12px; }
-  .role-switch { max-width: 100%; width: 100%; }
+  .header-actions { width: 100%; max-width: 100%; }
+  .role-switch { flex: 1; min-width: 0; }
   .role-button { flex: 1; }
   main { padding-top: 23px; }
   .stat-ribbon { grid-template-columns: repeat(5, minmax(73px, 1fr)); overflow-x: auto; }
   .student-row { grid-template-columns: 37px minmax(0, 1fr) auto; }
   .student-row .row-actions { grid-column: 2 / -1; justify-content: flex-end; }
-  .work-grid, .mistake-grid, .product-grid, .growth-layout, .points-admin-grid { grid-template-columns: 1fr; }
+  .work-grid, .mistake-grid, .product-grid, .growth-layout, .points-admin-grid, .guide-route, .guide-grid { grid-template-columns: 1fr; }
   .inline-form { grid-template-columns: 1fr 1fr; }
   .inline-form input:first-child { grid-column: 1 / -1; }
   .inline-form button { grid-column: 1 / -1; }

@@ -102,6 +102,7 @@ interface AuditEntry {
 interface AppState {
   activeRole: Role;
   page: string;
+  guideSeen?: boolean;
   selectedStudentId: string;
   students: Student[];
   homework: Homework[];
@@ -326,8 +327,11 @@ function navItems(): Array<{ id: string; label: string }> {
 function renderHeader(): string {
   return `<header class="topbar">
     <div class="brand"><span class="brand-mark">暖</span><div><strong>暖芽辅导班</strong><small>${today}</small></div></div>
-    <div class="role-switch" aria-label="体验角色切换">
-      ${(["guardian", "staff", "owner"] as Role[]).map((role) => `<button class="role-button ${state.activeRole === role ? "is-active" : ""}" data-action="role" data-role="${role}">${roleLabel[role]}</button>`).join("")}
+    <div class="header-actions">
+      <button class="guide-entry" data-action="open-guide">功能导览</button>
+      <div class="role-switch" aria-label="体验角色切换">
+        ${(["guardian", "staff", "owner"] as Role[]).map((role) => `<button class="role-button ${state.activeRole === role ? "is-active" : ""}" data-action="role" data-role="${role}">${roleLabel[role]}</button>`).join("")}
+      </div>
     </div>
   </header>`;
 }
@@ -502,8 +506,49 @@ function renderProfile(): string {
     <section class="ledger-list">${notices.map((notice) => `<article><div><strong>预计 ${notice.eta} 可以来接</strong><span>${notice.createdAt} · ${notice.status}</span></div><b class="plus">已通知</b></article>`).join("") || `<div class="empty-state">最近还没有接娃提醒。</div>`}</section>`;
 }
 
+function guideCard(title: string, description: string, role: Role, page: string, roleName: string, actionLabel: string): string {
+  return `<article class="guide-card">
+    <div class="guide-card-copy"><p>${roleName}</p><h2>${title}</h2><span>${description}</span></div>
+    <button class="soft-button" data-action="guide-jump" data-role="${role}" data-page="${page}">${actionLabel}</button>
+  </article>`;
+}
+
+function renderGuide(): string {
+  return `${pageTitle("功能导览", "三分钟看懂暖芽怎么用", "这是一套围绕孩子到班、作业、接娃与成长奖励展开的日常协作工具。")}
+    <section class="guide-route" aria-label="日常使用主线">
+      <article><b>01</b><div><strong>家长先提交</strong><span>把当天作业和补充说明交给老师。</span></div></article>
+      <article><b>02</b><div><strong>老师辅导并提醒</strong><span>跟进作业、填写反馈，预计完成时通知接娃。</span></div></article>
+      <article><b>03</b><div><strong>负责人统一管理</strong><span>维护学员、积分、商品、权限与关键记录。</span></div></article>
+    </section>
+    <section class="section-heading"><div><p>全部功能</p><h2>每一项都有清晰的负责人</h2></div></section>
+    <section class="guide-grid">
+      ${guideCard("每日状态与作业", "家长提交文字或图片作业；老师确认、辅导、填写反馈并发放作业奖励。", "guardian", "homework", "家长 / 老师", "去提交作业")}
+      ${guideCard("接娃提醒", "老师可设置 15、30、60 分钟或自定义时间；家长在“今日”和“我的家庭”查看提醒。", "staff", "dashboard", "老师", "去发接娃提醒")}
+      ${guideCard("积分与排行榜", "完成作业、表现进步和错题订正均可积累积分；家长可查看成长流水和本周排行。", "guardian", "growth", "家长", "去看成长")}
+      ${guideCard("积分商店与兑换", "负责人可上架、下架与调整库存；老师和负责人可现场兑换，负责人可撤销并自动恢复积分和库存。", "owner", "shop", "负责人 / 老师", "去管理商店")}
+      ${guideCard("错题集", "家长或老师上传错题与图片；老师持续推进待订正、已订正和已掌握三个阶段。", "guardian", "mistakes", "家长 / 老师", "去记录错题")}
+      ${guideCard("学员与家长绑定", "负责人审核家长绑定申请并维护学员档案；老师只能查看绑定信息。", "owner", "students", "负责人", "去管理学员")}
+      ${guideCard("角色权限", "家长只看自己的孩子；老师处理日常；负责人拥有积分、商品、绑定、权限与撤销权限。", "owner", "team", "负责人", "去看权限")}
+      ${guideCard("操作审计与隐私", "关键的积分、兑换、提醒、绑定和状态变动会留痕；家长还能控制孩子是否参与排行榜。", "owner", "audit", "负责人 / 家长", "去看审计")}
+    </section>
+    <section class="security-note guide-note"><strong>体验版说明</strong><span>当前是浏览器本地数据演示。正式上线到小程序后，登录、角色权限、图片和提醒都需要由服务端与微信能力共同校验。</span></section>`;
+}
+
+function renderGuideOverlay(): string {
+  return `<div class="guide-overlay" role="dialog" aria-modal="true" aria-labelledby="guide-overlay-title">
+    <section class="guide-dialog">
+      <p>欢迎体验暖芽</p><h2 id="guide-overlay-title">先用三步，照看好每一天</h2>
+      <span>提交作业、老师辅导、接娃提醒、积分成长和后台管理，都已经放进这版 H5 体验中。</span>
+      <div class="guide-preview"><strong>家长提交</strong><strong>老师跟进</strong><strong>负责人管理</strong></div>
+      <button class="primary-button" data-action="start-guide">查看全部功能</button>
+      <button class="text-button guide-skip" data-action="dismiss-guide">直接进入体验</button>
+    </section>
+  </div>`;
+}
+
 function renderPage(): string {
   const normalizedPage = state.activeRole === "guardian" && state.page === "dashboard" ? "today" : state.page;
+  if (normalizedPage === "guide") return renderGuide();
   if (normalizedPage === "dashboard") return renderDashboard();
   if (normalizedPage === "today") return renderToday();
   if (normalizedPage === "homework") return renderHomework();
@@ -518,7 +563,7 @@ function renderPage(): string {
 }
 
 function render(): void {
-  appRoot.innerHTML = `<div class="app-shell">${renderHeader()}${renderNavigation()}<main>${renderPage()}</main><footer><span>H5 体验版 · 数据保存在当前浏览器</span><button class="text-button" data-action="reset">恢复示例数据</button></footer></div>`;
+  appRoot.innerHTML = `<div class="app-shell">${renderHeader()}${renderNavigation()}<main>${renderPage()}</main><footer><span>H5 体验版 · 数据保存在当前浏览器</span><button class="text-button" data-action="reset">恢复示例数据</button></footer></div>${state.guideSeen ? "" : renderGuideOverlay()}`;
 }
 
 function showToast(message: string): void {
@@ -562,6 +607,21 @@ function handleAction(action: string, element: HTMLElement): void {
     const page = element.dataset.page;
     if (!page) return;
     commit(() => { state.page = page; });
+    return;
+  }
+  if (action === "open-guide" || action === "start-guide") {
+    commit(() => { state.guideSeen = true; state.page = "guide"; });
+    return;
+  }
+  if (action === "dismiss-guide") {
+    commit(() => { state.guideSeen = true; state.page = state.activeRole === "guardian" ? "today" : "dashboard"; });
+    return;
+  }
+  if (action === "guide-jump") {
+    const role = element.dataset.role as Role | undefined;
+    const page = element.dataset.page;
+    if (!role || !page) return;
+    commit(() => { state.guideSeen = true; state.activeRole = role; state.page = page; });
     return;
   }
   if (action === "filter-status") {
