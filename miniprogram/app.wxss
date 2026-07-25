@@ -1,0 +1,27 @@
+page { min-height: 100%; color: #27332d; background: #f7f0df; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+view, text, button, input, textarea, picker { box-sizing: border-box; }
+button { margin: 0; padding: 0; line-height: 1.4; background: transparent; border: 0; }
+button::after { border: 0; }
+.page { padding: 28rpx 28rpx 54rpx; }
+.eyebrow { color: #c86742; font-size: 22rpx; font-weight: 700; letter-spacing: 2rpx; }
+.title { display: block; margin-top: 8rpx; color: #2f5b45; font-size: 44rpx; font-weight: 800; line-height: 1.25; }
+.subtitle { display: block; margin-top: 10rpx; color: #68776c; font-size: 25rpx; line-height: 1.65; }
+.section-title { display: flex; justify-content: space-between; align-items: end; margin: 38rpx 0 18rpx; }
+.section-title text { color: #2f5b45; font-size: 31rpx; font-weight: 800; }
+.card { margin-top: 16rpx; padding: 26rpx; background: #fffaf0; border: 1rpx solid #e7dac2; border-radius: 16rpx 38rpx 38rpx 38rpx; box-shadow: 0 8rpx 18rpx rgba(47, 91, 69, .05); }
+.primary { min-height: 88rpx; padding: 20rpx 26rpx; color: #fff9ed; font-size: 27rpx; font-weight: 800; text-align: center; background: #2f5b45; border-radius: 16rpx 16rpx 16rpx 5rpx; }
+.soft { min-height: 72rpx; padding: 16rpx 20rpx; color: #2f5b45; font-size: 24rpx; font-weight: 700; background: #e7efdf; border-radius: 14rpx; }
+.warn { color: #8e6c20; background: #fff0bd; }
+.danger { color: #9b482c; background: #fde2d4; }
+.muted { color: #728076; font-size: 23rpx; line-height: 1.6; }
+.line { height: 1rpx; margin: 20rpx 0; background: #eadfc9; }
+.status { display: inline-flex; padding: 8rpx 14rpx; color: #587164; font-size: 21rpx; background: #e7efdf; border-radius: 999rpx; }
+.status.active { color: #9b482c; background: #fde2d4; }
+.status.wait { color: #8e6c20; background: #fff0bd; }
+.input, .textarea, .picker { width: 100%; min-height: 82rpx; margin-top: 12rpx; padding: 20rpx; color: #27332d; font-size: 27rpx; background: #fffdf7; border: 1rpx solid #d9cdb5; border-radius: 14rpx; }
+.textarea { min-height: 166rpx; }
+.form-label { display: block; margin-top: 22rpx; color: #526359; font-size: 24rpx; font-weight: 700; }
+.chip-row { display: flex; gap: 12rpx; margin: 18rpx 0; overflow-x: auto; white-space: nowrap; }
+.chip { flex: 0 0 auto; min-height: 64rpx; padding: 16rpx 20rpx; color: #526359; font-size: 23rpx; background: #fffaf0; border: 1rpx solid #e1d5be; border-radius: 999rpx; }
+.chip.selected { color: #fffaf0; background: #2f5b45; border-color: #2f5b45; }
+.empty { padding: 46rpx 24rpx; color: #758176; font-size: 25rpx; text-align: center; border: 1rpx dashed #c7b99e; border-radius: 16rpx; }

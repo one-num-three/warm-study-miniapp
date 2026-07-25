@@ -1,0 +1,12 @@
+{
+  "appid": "touristappid",
+  "projectname": "warm-study-miniapp",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": {
+    "es6": true,
+    "minified": false,
+    "postcss": true,
+    "urlCheck": false
+  }
+}

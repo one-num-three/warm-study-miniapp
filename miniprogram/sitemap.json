@@ -1,0 +1,4 @@
+{
+  "desc": "暖芽辅导班本地演示版",
+  "rules": [{ "action": "allow", "page": "*" }]
+}

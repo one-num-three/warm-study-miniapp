@@ -1,0 +1,7 @@
+.summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10rpx; margin-top: 24rpx; }
+.summary { display: flex; flex-direction: column; gap: 7rpx; min-height: 118rpx; padding: 18rpx 10rpx; color: #2f5b45; background: #fffaf0; border-radius: 18rpx 18rpx 6rpx 18rpx; }
+.summary text:first-child { font-size: 40rpx; font-weight: 800; }.summary text:last-child { color: #728076; font-size: 19rpx; }
+.guardian-card { display: flex; flex-direction: column; gap: 16rpx; margin-top: 24rpx; background: #e7efdf; }.guardian-title { color: #2f5b45; font-size: 34rpx; font-weight: 800; }
+.mini-link { color: #2f5b45; font-size: 23rpx; font-weight: 700; text-decoration: underline; }.student-row { display: grid; grid-template-columns: 64rpx 1fr auto; align-items: center; gap: 16rpx; }
+.guide-link { display: block; margin-top: 4rpx; padding: 20rpx; color: #2f5b45; font-size: 23rpx; font-weight: 700; line-height: 1.5; background: #fff0bd; border-radius: 14rpx; }
+.avatar { display: flex; align-items: center; justify-content: center; width: 58rpx; height: 58rpx; color: #fff9ed; font-size: 28rpx; background: #d86f45; border-radius: 50% 50% 50% 14rpx; }.student-copy text { display: block; }.student-copy text:first-child { font-size: 27rpx; font-weight: 800; }.student-copy text:last-child { margin-top: 6rpx; color: #728076; font-size: 21rpx; }.actions { grid-column: 2 / -1; display: flex; justify-content: flex-end; gap: 12rpx; }.reset { display: block; margin: 46rpx auto 0; color: #758176; font-size: 22rpx; text-decoration: underline; }

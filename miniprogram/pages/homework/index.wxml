@@ -1,0 +1,21 @@
+<view class="page">
+  <text class="eyebrow">{{state.role === 'guardian' ? '提交作业' : '作业工作台'}}</text>
+  <text class="title">{{state.role === 'guardian' ? '把今天需要辅导的内容交给老师' : '今天的作业，今天闭环'}}</text>
+  <text class="subtitle">{{state.role === 'guardian' ? '文字、科目、说明和图片都会同步给老师。' : '确认、辅导、反馈和奖励在同一条线上完成。'}}</text>
+  <scroll-view scroll-x class="chip-row"><button wx:for="{{students}}" wx:key="id" class="chip {{item.selected ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="selectStudent">{{item.nickname}}</button></scroll-view>
+
+  <view wx:if="{{state.role === 'guardian'}}" class="card">
+    <text class="form-label">科目</text><picker class="picker" range="{{subjects}}" value="{{subjectIndex}}" bindchange="subjectChange">{{subjects[subjectIndex]}}</picker>
+    <text class="form-label">作业内容</text><textarea class="textarea" placeholder="例如：练习册第32页第1—6题" value="{{content}}" data-field="content" bindinput="input" />
+    <text class="form-label">补充说明</text><input class="input" placeholder="哪些地方需要老师多讲一遍" value="{{note}}" data-field="note" bindinput="input" />
+    <button class="soft upload" bindtap="chooseImage">{{image ? '已选择作业图片' : '选择作业图片（可选）'}}</button>
+    <button class="primary submit" bindtap="submit">提交给老师</button>
+  </view>
+  <view class="section-title"><text>{{state.role === 'guardian' ? '提交记录' : '待处理作业'}}</text></view>
+  <view wx:if="{{!list.length}}" class="empty">今天还没有作业记录。</view>
+  <view wx:for="{{list}}" wx:key="id" class="card work">
+    <view class="work-top"><text>{{state.role === 'guardian' ? item.subject : item.studentName + ' · ' + item.subject}}</text><text class="status {{item.status === '辅导中' ? 'active' : item.status === '待确认' ? 'wait' : ''}}">{{item.status}}</text></view>
+    <text class="work-content">{{item.content}}</text><text wx:if="{{state.role === 'guardian'}}" class="muted">{{item.feedback || '老师还没有填写反馈'}}</text>
+    <view wx:if="{{state.role !== 'guardian'}}" class="work-actions"><input class="feedback-input" value="{{item.feedback}}" placeholder="填写给家长的辅导反馈" data-id="{{item.id}}" data-status="{{item.status}}" bindblur="saveFeedback" /><button wx:if="{{item.status !== '已完成'}}" class="soft" data-id="{{item.id}}" data-status="{{item.status}}" bindtap="nextStatus">{{item.status === '待确认' ? '开始辅导' : '完成此项'}}</button><button wx:if="{{item.status === '已完成'}}" class="soft warn" data-id="{{item.id}}" bindtap="reward">{{item.rewarded ? '已奖励' : '奖励 +5'}}</button></view>
+  </view>
+</view>

@@ -1,0 +1,6 @@
+<view class="page">
+  <text class="eyebrow">功能导览</text><text class="title">三分钟看懂暖芽怎么用</text><text class="subtitle">同一个小程序按身份展示不同入口：家长提交，老师跟进，负责人统一管理。</text>
+  <view class="route"><view><text>01</text><text>家长提交</text><text>作业和补充说明交给老师。</text></view><view><text>02</text><text>老师处理</text><text>辅导、反馈、提醒来接。</text></view><view><text>03</text><text>负责人管理</text><text>学生、积分、商品、权限留痕。</text></view></view>
+  <view wx:for="{{cards}}" wx:key="title" class="card guide-card"><text>{{item.title}}</text><text>{{item.text}}</text><navigator class="soft" url="{{item.url}}">进入此功能</navigator></view>
+  <view class="card note"><text>体验版说明</text><text>当前版本使用本机存储，适合在微信开发者工具验证全流程交互。正式上线时请将数据层切换至 CloudBase，并在云函数内校验角色与学生绑定。</text></view>
+</view>

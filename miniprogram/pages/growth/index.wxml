@@ -1,0 +1,8 @@
+<view class="page">
+  <text class="eyebrow">成长花园</text><text class="title">{{current.nickname}} 已经积累 {{current.points}} 分</text><text class="subtitle">兑换不会影响本周成长排行，努力一直会被记住。</text>
+  <scroll-view scroll-x class="chip-row"><button wx:for="{{students}}" wx:key="id" class="chip {{item.selected ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="selectStudent">{{item.nickname}}</button></scroll-view>
+  <view class="growth-card"><text>可用积分</text><text>{{current.points}}</text><text>每一笔增减都有清晰原因。</text></view>
+  <view class="section-title"><text>本周成长榜</text></view><view class="card" wx:for="{{ranking}}" wx:key="id"><view class="rank"><text>{{index + 1}}</text><text>{{item.nickname}} · {{item.grade}}</text><text>{{item.week}} 分</text></view></view>
+  <view wx:if="{{state.role === 'owner'}}" class="card"><text class="form-label">负责人调整积分</text><input class="input" type="number" value="{{delta}}" data-field="delta" bindinput="input" /><input class="input" placeholder="调整原因（必填）" value="{{reason}}" data-field="reason" bindinput="input" /><button class="primary submit" bindtap="adjust">确认写入流水</button></view>
+  <view class="section-title"><text>积分明细</text></view><view wx:for="{{ledger}}" wx:key="id" class="card ledger"><view><text>{{item.type}}{{item.reversed ? ' · 已冲正' : ''}}</text><text>{{item.reason}} · {{item.at}}</text></view><view><text class="{{item.delta > 0 ? 'plus' : 'minus'}}">{{item.delta > 0 ? '+' : ''}}{{item.delta}}</text><button wx:if="{{state.role === 'owner' && !item.reversed && item.type !== '撤销冲正'}}" class="reverse" data-id="{{item.id}}" bindtap="reverse">冲正</button></view></view>
+</view>

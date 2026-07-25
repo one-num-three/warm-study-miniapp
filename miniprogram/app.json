@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/dashboard/index",
+    "pages/homework/index",
+    "pages/growth/index",
+    "pages/shop/index",
+    "pages/mistakes/index",
+    "pages/manage/index",
+    "pages/guide/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "暖芽辅导班",
+    "navigationBarBackgroundColor": "#f7f0df",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f0df",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#748176",
+    "selectedColor": "#2f5b45",
+    "backgroundColor": "#fffaf0",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/dashboard/index", "text": "今日" },
+      { "pagePath": "pages/homework/index", "text": "作业" },
+      { "pagePath": "pages/growth/index", "text": "成长" },
+      { "pagePath": "pages/shop/index", "text": "商店" },
+      { "pagePath": "pages/mistakes/index", "text": "错题" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,34 @@
+<view class="page">
+  <text class="eyebrow">暖芽辅导班 · 2026年7月16日</text>
+  <text class="title">{{state.role === 'guardian' ? '作业正在稳稳推进' : '今天要把每个孩子都安稳送回家'}}</text>
+  <text class="subtitle">{{state.role === 'guardian' ? '提交作业后，老师会持续更新进度与反馈。' : '先处理异常，再完成今天的辅导闭环。'}}</text>
+
+  <scroll-view scroll-x class="chip-row">
+    <button wx:for="{{roles}}" wx:key="*this" class="chip {{state.role === item ? 'selected' : ''}}" data-role="{{item}}" bindtap="chooseRole">{{roleNames[item]}}</button>
+  </scroll-view>
+  <navigator class="guide-link" url="/pages/guide/index">功能导览：三分钟看懂家长、老师和负责人的使用路径</navigator>
+
+  <view class="summary-grid" wx:if="{{state.role !== 'guardian'}}">
+    <view wx:for="{{statusCounts}}" wx:key="name" class="summary"><text>{{item.count}}</text><text>{{item.name}}</text></view>
+  </view>
+
+  <view class="card guardian-card" wx:if="{{state.role === 'guardian'}}">
+    <text class="eyebrow">今日接娃提醒</text>
+    <text class="guardian-title">{{notices.length ? '预计 ' + notices[0].eta + ' 可以来接' : '老师会在完成前主动提醒你'}}</text>
+    <navigator class="primary" url="/pages/homework/index">提交今天的作业</navigator>
+  </view>
+
+  <view class="section-title"><text>{{state.role === 'guardian' ? '孩子的今日进度' : '今日状态轨道'}}</text><navigator class="mini-link" url="/pages/manage/index">管理中心</navigator></view>
+  <view wx:for="{{students}}" wx:key="id" class="card student-row">
+    <view class="avatar">{{item.initial}}</view>
+    <view class="student-copy"><text>{{item.name}} · {{item.grade}}</text><text>可用积分 {{item.points}} · 已绑定 {{item.guardiansText}}</text></view>
+    <text class="status {{item.status === '辅导中' ? 'active' : item.status === '待接' ? 'wait' : ''}}">{{item.status}}</text>
+    <view class="actions" wx:if="{{state.role !== 'guardian'}}">
+      <button wx:if="{{item.status === '待到班'}}" class="soft" data-id="{{item.id}}" data-status="已到班" bindtap="updateStatus">到班</button>
+      <button wx:if="{{item.status === '已到班'}}" class="soft" data-id="{{item.id}}" data-status="辅导中" bindtap="updateStatus">开始</button>
+      <block wx:if="{{item.status === '辅导中'}}"><button class="soft" data-id="{{item.id}}" data-minutes="30" bindtap="remind">30分钟后</button><button class="soft" data-id="{{item.id}}" bindtap="customRemind">自定义</button></block>
+      <button wx:if="{{item.status === '待接'}}" class="soft" data-id="{{item.id}}" data-status="已接走" bindtap="updateStatus">已接走</button>
+    </view>
+  </view>
+  <button class="reset" bindtap="reset">恢复本机示例数据</button>
+</view>
