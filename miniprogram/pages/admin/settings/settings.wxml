@@ -1,0 +1,55 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- 老师读得到配置但改不了，先说清楚，免得他去点一个不会响应的开关 -->
+    <view class="card" wx:if="{{!canManage}}">
+      <view class="card__hint">你没有修改系统设置的权限，这里只能查看当前配置。</view>
+    </view>
+
+    <view class="card" wx:for="{{groups}}" wx:key="title" wx:for-item="group" wx:for-index="groupIndex">
+      <view class="card__title">{{group.title}}</view>
+
+      <view class="row" wx:for="{{group.rows}}" wx:key="key" wx:for-item="row">
+        <view class="row__main">
+          <view class="row__title">{{row.label}}</view>
+          <view class="row__sub">{{row.hint}}</view>
+        </view>
+
+        <block wx:if="{{row.kind === 'toggle'}}">
+          <view wx:if="{{canManage}}" class="{{row.switchClass}}" data-key="{{row.key}}" bindtap="onToggle"></view>
+          <!-- 只读态：保留开关的视觉状态，但不接受点击 -->
+          <view wx:else class="{{row.switchClass}} settings__switch--locked"></view>
+        </block>
+
+        <block wx:else>
+          <view
+            wx:if="{{canManage}}"
+            class="btn btn--sm"
+            data-key="{{row.key}}"
+            bindtap="onEditNumber"
+            hover-class="btn--hover"
+          >
+            {{row.value}}
+          </view>
+          <view wx:else class="row__value">{{row.value}}</view>
+        </block>
+      </view>
+    </view>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+</view>

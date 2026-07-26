@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "老师账号",
+  "usingComponents": {
+    "form-modal": "/components/form-modal/index"
+  }
+}

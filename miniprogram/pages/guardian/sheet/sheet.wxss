@@ -1,0 +1,16 @@
+/* 结构全部复用 app.wxss 的 .card / .row / .thumb，这里只补两条。 */
+
+/* 「2026-07-26 · 张小满」和右边的状态标签同处一行，日期加姓名容易顶满，
+   截断标题也不能截断状态 —— 状态才是家长点进来要看的第一件事 */
+.sheet__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 撤回按钮和上面的卡片再拉开一点，避免家长翻到底顺手误触 */
+.sheet__withdraw {
+  margin-top: 8rpx;
+}

@@ -1,0 +1,24 @@
+/* 结构复用 app.wxss 的 .card / .btn-row / .thumb，这里只补间距和截断。 */
+
+.mistakes__add {
+  margin-bottom: 24rpx;
+}
+
+.mistakes__actions {
+  margin-top: 20rpx;
+}
+
+/* 「错因：…」和「正确答案：…」贴太近会糊成一段，各自留一点行距 */
+.mistakes__line {
+  margin-top: 8rpx;
+}
+
+/* 知识点常常写得很长（「两位数进位加法的竖式对齐」），
+   别把右边的状态标签挤没 —— 那是家长扫一眼就要看到的东西 */
+.mistakes__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

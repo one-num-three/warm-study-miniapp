@@ -1,0 +1,104 @@
+<view class="page page--tabbed">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- 五个到班状态 + 今日未交作业。「待接」那格是强调色，因为孩子已经在等家长了 -->
+    <view class="grid grid--3 board__metrics">
+      <view class="{{item.cls}}" wx:for="{{metrics}}" wx:key="label">
+        <text class="metric__value">{{item.value}}</text>
+        <text class="metric__label">{{item.label}}</text>
+      </view>
+    </view>
+
+    <!-- 没有待办时整张卡不出现，看板保持干净 -->
+    <view class="card" wx:if="{{alerts.length > 0}}">
+      <view class="card__title">要处理的事</view>
+      <view class="row" wx:for="{{alerts}}" wx:key="text" wx:for-item="alert" wx:for-index="alertIndex">
+        <view class="row__main">
+          <view class="row__title">{{alert.text}}</view>
+        </view>
+        <view
+          wx:if="{{alert.url}}"
+          class="btn btn--sm"
+          data-index="{{alertIndex}}"
+          bindtap="onAlertTap"
+          hover-class="btn--hover"
+        >
+          去处理
+        </view>
+      </view>
+    </view>
+
+    <view class="section-title">
+      <view>今日学员 · {{dateKey}}</view>
+    </view>
+
+    <view class="empty" wx:if="{{rows.length === 0}}">还没有在读学员</view>
+
+    <view class="card" wx:for="{{rows}}" wx:key="studentId" wx:for-item="row" wx:for-index="rowIndex">
+      <view class="spread full">
+        <view class="board__name">{{row.title}}</view>
+        <text class="{{row.tone}}">{{row.session.status}}</text>
+      </view>
+      <view class="row__sub">{{row.subText}}</view>
+
+      <view
+        class="btn-row board__actions"
+        wx:if="{{row.transitions.length > 0 || canNotify || row.canRevert}}"
+      >
+        <!-- 可用的状态流转由 shared 的状态机算出，界面上不会出现服务端会拒绝的按钮 -->
+        <view
+          class="btn btn--sm"
+          wx:for="{{row.transitions}}"
+          wx:key="to"
+          wx:for-item="rule"
+          wx:for-index="ruleIndex"
+          data-student="{{row.studentId}}"
+          data-to="{{rule.to}}"
+          bindtap="onTransition"
+          hover-class="btn--hover"
+        >
+          {{rule.label}}
+        </view>
+
+        <view
+          wx:if="{{canNotify}}"
+          class="btn btn--sm btn--accent"
+          data-index="{{rowIndex}}"
+          bindtap="onNotify"
+          hover-class="btn--hover"
+        >
+          发接娃提醒
+        </view>
+
+        <!-- 纠错操作，只有负责人看得到 -->
+        <view
+          wx:if="{{row.canRevert}}"
+          class="btn btn--sm btn--ghost"
+          data-index="{{rowIndex}}"
+          bindtap="onRevert"
+          hover-class="btn--hover"
+        >
+          撤回接走
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+</view>
+
+<tab-bar active="{{0}}" role="admin"></tab-bar>

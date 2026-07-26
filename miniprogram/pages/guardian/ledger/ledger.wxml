@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+  <view class="empty" wx:elif="{{noStudent}}">还没有绑定孩子</view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">
+        <text class="ledger__name">{{headText}}</text>
+        <text class="{{checkClass}}">{{checkText}}</text>
+      </view>
+      <view class="card__hint">余额由每一笔流水累加得到，任何人都不能直接改余额。</view>
+    </view>
+
+    <view class="card" wx:if="{{entries.length > 0}}">
+      <!-- 被冲正的记录保留但划掉（is-reversed），绝不删除 -->
+      <view class="row" wx:for="{{entries}}" wx:key="id">
+        <view class="row__main">
+          <view class="{{item.titleClass}}">{{item.reason}}</view>
+          <view class="row__sub">{{item.type}} · {{item.stamp}}</view>
+        </view>
+        <view class="{{item.deltaClass}}">{{item.deltaText}}</view>
+      </view>
+    </view>
+    <view class="empty" wx:else>还没有积分记录</view>
+  </block>
+</view>

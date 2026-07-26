@@ -1,0 +1,6 @@
+/* 系统设置的私有样式。.row / .switch 都来自 app.wxss，这里只补一个只读态。 */
+
+/* 老师看到的开关：状态照实显示，但压暗一档，表明它不是给他点的 */
+.settings__switch--locked {
+  opacity: 0.45;
+}

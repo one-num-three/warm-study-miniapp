@@ -1,0 +1,101 @@
+<view class="page page--tabbed">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <!-- 还没绑孩子：整页只放引导 -->
+  <block wx:elif="{{noStudent}}">
+    <view class="card">
+      <view class="card__title">还没有绑定孩子</view>
+      <view class="card__hint">向辅导班老师要一张写着绑定码的小卡片，输入后就能看到孩子在班里的情况。</view>
+      <view class="btn btn--primary btn--block growth__bind" bindtap="goBind" hover-class="btn--hover">去输绑定码</view>
+    </view>
+
+    <view class="card" wx:if="{{pendings.length > 0}}">
+      <view class="card__title">等待审核</view>
+      <view class="row" wx:for="{{pendings}}" wx:key="key">
+        <view class="row__main">
+          <view class="row__title">{{item.studentName}}</view>
+          <view class="row__sub">{{item.sub}}</view>
+        </view>
+        <text class="tag tag--gold">待审核</text>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <!-- 多孩家庭的切换条 -->
+    <view class="picker" wx:if="{{showPicker}}">
+      <view
+        wx:for="{{pickerItems}}"
+        wx:key="id"
+        class="{{item.cls}}"
+        data-id="{{item.id}}"
+        bindtap="onPickStudent"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view class="hero">
+      <view class="hero__label">当前积分</view>
+      <view class="hero__value">{{balance}}</view>
+      <view class="hero__foot">
+        <view>{{rankText}}</view>
+        <view>花积分不会掉排名</view>
+      </view>
+    </view>
+
+    <!-- 三个子页面入口 -->
+    <view class="grid grid--3 growth__entries">
+      <view class="metric" bindtap="goLedger" hover-class="btn--hover">
+        <view class="metric__value">流水</view>
+        <view class="metric__label">积分明细</view>
+      </view>
+      <view class="metric" bindtap="goStore" hover-class="btn--hover">
+        <view class="metric__value">商城</view>
+        <view class="metric__label">看看能换啥</view>
+      </view>
+      <view class="metric" bindtap="goMistakes" hover-class="btn--hover">
+        <view class="metric__value">错题</view>
+        <view class="metric__label">错题本</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card__title">
+        <text>本周排行榜</text>
+        <text class="text-small text-muted">{{rangeText}}</text>
+      </view>
+
+      <view class="empty" wx:if="{{rows.length === 0}}">本周还没有人上榜</view>
+      <block wx:else>
+        <view class="{{item.cls}}" wx:for="{{rows}}" wx:key="studentId">
+          <view class="rank__no">{{item.rank}}</view>
+          <view class="row__main">
+            <view class="row__title">{{item.displayName}}</view>
+          </view>
+          <view class="row__value">{{item.score}}</view>
+        </view>
+      </block>
+    </view>
+
+    <view class="card">
+      <view class="card__title">最近变动</view>
+
+      <view class="empty" wx:if="{{entries.length === 0}}">还没有积分记录</view>
+      <block wx:else>
+        <view class="row" wx:for="{{entries}}" wx:key="id">
+          <view class="row__main">
+            <view class="{{item.titleClass}}">{{item.reason}}</view>
+            <view class="row__sub">{{item.sub}}</view>
+          </view>
+          <view class="{{item.deltaClass}}">{{item.deltaText}}</view>
+        </view>
+      </block>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,19 @@
+/* 老师账号的私有间距。卡片、标签、按钮骨架都来自 app.wxss，这里只处理权限标签的排布。 */
+
+/* 顶部主按钮和第一张账号卡断开，否则看起来像卡片的一部分 */
+.staff__create {
+  margin-bottom: 24rpx;
+}
+
+/* 权限标签数量不定（老师 7 项、负责人 8+1 项），必须能换行，靠 gap 撑开行距 */
+.staff__perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+/* 操作按钮 / 负责人说明与上方权限标签之间留一口气 */
+.staff__actions {
+  margin-top: 20rpx;
+}

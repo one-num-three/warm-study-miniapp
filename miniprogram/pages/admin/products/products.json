@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "商品与库存",
+  "usingComponents": {
+    "form-modal": "/components/form-modal/index"
+  }
+}

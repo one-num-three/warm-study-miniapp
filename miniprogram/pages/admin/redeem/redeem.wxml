@@ -1,0 +1,49 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- 抬头：兑换前要拿它和孩子本人对一次 -->
+    <view class="card">
+      <view class="card__title">
+        <text>{{studentName}}</text>
+        <text class="tag">{{balanceText}}</text>
+      </view>
+      <view class="card__hint">核对孩子本人后再兑换。扣分、减库存、发放在同一步完成。</view>
+      <!-- 没权限的人也可能被叫来看货，先把话说清楚，免得他找不到按钮 -->
+      <view class="card__hint redeem__notice" wx:if="{{!canRedeem}}">
+        你没有现场兑换的权限，这里只能查看
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{products.length === 0}}">没有上架的商品</view>
+
+    <block wx:else>
+      <view class="card" wx:for="{{products}}" wx:key="id" wx:for-item="item">
+        <view class="card__title">
+          <text>{{item.name}}</text>
+          <text class="{{item.stockTagClass}}">{{item.stockText}}</text>
+        </view>
+
+        <view class="card__hint" wx:if="{{item.description}}">{{item.description}}</view>
+
+        <view class="spread redeem__foot">
+          <text class="redeem__cost">{{item.costText}}</text>
+          <view
+            wx:if="{{canRedeem}}"
+            class="{{item.btnClass}}"
+            data-id="{{item.id}}"
+            bindtap="onRedeem"
+            hover-class="btn--hover"
+          >
+            {{item.btnText}}
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+</view>

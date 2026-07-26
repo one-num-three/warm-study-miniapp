@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/guardian/today/today",
+    "pages/guardian/homework/homework",
+    "pages/guardian/growth/growth",
+    "pages/guardian/me/me",
+    "pages/guardian/bind/bind",
+    "pages/guardian/submit/submit",
+    "pages/guardian/sheet/sheet",
+    "pages/guardian/ledger/ledger",
+    "pages/guardian/store/store",
+    "pages/guardian/mistakes/mistakes",
+    "pages/admin/board/board",
+    "pages/admin/homework/homework",
+    "pages/admin/students/students",
+    "pages/admin/student/student",
+    "pages/admin/manage/manage",
+    "pages/admin/redeem/redeem",
+    "pages/admin/bindings/bindings",
+    "pages/admin/products/products",
+    "pages/admin/redemptions/redemptions",
+    "pages/admin/staff/staff",
+    "pages/admin/audit/audit",
+    "pages/admin/settings/settings",
+    "pages/admin/reconcile/reconcile"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#2F5B45",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "暖芽辅导班",
+    "backgroundColor": "#EFE9DC",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#9AA79D",
+    "selectedColor": "#2F5B45",
+    "backgroundColor": "#FFFAF0",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/guardian/today/today", "text": "今日" },
+      { "pagePath": "pages/guardian/homework/homework", "text": "作业" },
+      { "pagePath": "pages/guardian/growth/growth", "text": "成长" },
+      { "pagePath": "pages/guardian/me/me", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

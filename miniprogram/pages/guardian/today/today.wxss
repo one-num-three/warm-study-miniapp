@@ -1,0 +1,6 @@
+/* 今日页的骨架全部来自 app.wxss（.hero / .card / .row / .picker），
+   这里只补一条卡片内按钮的上边距 —— 放进全局会影响其它页面的按钮排布。 */
+
+.today__bind {
+  margin-top: 24rpx;
+}

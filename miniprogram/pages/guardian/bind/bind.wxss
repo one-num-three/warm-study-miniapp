@@ -1,0 +1,14 @@
+/* 骨架样式都在 app.wxss（.code-input / .code-preview / .field），这里只补两条布局微调。 */
+
+/* 绑定码输入框和上方说明拉开距离，别让家长以为提示文字是输入框的一部分 */
+.bind__code {
+  margin-top: 24rpx;
+}
+
+/* 「还差 N 位 / 格式正确 / 绑定码不正确」三种提示轮换时高度固定，
+   否则下面的关系选择和按钮会跟着上下跳，输入时很晃眼 */
+.field__hint,
+.field__ok,
+.field__error {
+  min-height: 34rpx;
+}

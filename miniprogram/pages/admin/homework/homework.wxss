@@ -1,0 +1,18 @@
+/* 作业池的骨架样式都在 app.wxss（.card / .row / .thumb--sm / .btn），
+   这里只补页面私有的字重与间距。 */
+
+/* 学员姓名是这张作业单的标题 */
+.homework__name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+/* 老师写给家长的反馈，紧跟在作业项下面 */
+.homework__feedback {
+  margin-top: 16rpx;
+}
+
+/* 卡片底部的操作按钮和上面的内容分开 */
+.homework__actions {
+  margin-top: 20rpx;
+}

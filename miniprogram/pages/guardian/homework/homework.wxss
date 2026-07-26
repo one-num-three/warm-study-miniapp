@@ -1,0 +1,18 @@
+/* 作业列表只需要几处间距，骨架全部来自 app.wxss。 */
+
+.homework__bind {
+  margin-top: 24rpx;
+}
+
+/* 顶部主按钮和第一张作业卡之间留一口气 */
+.homework__submit {
+  margin-bottom: 24rpx;
+}
+
+.homework__feedback {
+  margin-top: 16rpx;
+}
+
+.homework__detail {
+  margin-top: 20rpx;
+}

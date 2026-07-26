@@ -1,0 +1,11 @@
+/* 结构全部用 app.wxss 的 .card / .row / .ledger__delta，这里只补一条：
+   「XX 当前 128 分」和右边的对账标签同处一行，姓名再长也不能把标签挤成两行 ——
+   「账目异常」正是最需要被看见的那四个字。 */
+
+.ledger__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

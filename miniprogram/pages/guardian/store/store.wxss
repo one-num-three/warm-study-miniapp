@@ -1,0 +1,21 @@
+/* 商品卡片的底部一行：价格是孩子唯一真正关心的信息，
+   用陶土色 + 加大字号把它推成整张卡的视觉重心，限购标签退到右边当补充。 */
+
+.store__foot {
+  margin-top: 16rpx;
+}
+
+.store__cost {
+  color: #d86f45;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+/* 商品名可能很长（「文具套装（限量）」），别把右边的库存标签挤掉 */
+.store__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

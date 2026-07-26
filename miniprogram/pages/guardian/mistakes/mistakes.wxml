@@ -1,0 +1,52 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+  <view class="empty" wx:elif="{{noStudent}}">还没有绑定孩子</view>
+
+  <block wx:else>
+    <view class="btn btn--primary btn--block mistakes__add" bindtap="onAdd" hover-class="btn--hover">记一道错题</view>
+
+    <block wx:if="{{questions.length > 0}}">
+      <view class="card" wx:for="{{questions}}" wx:key="id" wx:for-item="question">
+        <view class="card__title">
+          <text class="mistakes__name">{{question.titleText}}</text>
+          <text class="{{question.tone}}">{{question.status}}</text>
+        </view>
+
+        <view class="card__hint mistakes__line" wx:if="{{question.reasonText}}">{{question.reasonText}}</view>
+        <view class="card__hint mistakes__line" wx:if="{{question.answerText}}">{{question.answerText}}</view>
+        <image wx:if="{{question.image}}" class="thumb" src="{{question.image}}" mode="aspectFill" />
+
+        <!-- 能点哪几步由当前状态决定，允许往回退：复测又错了是常事 -->
+        <view class="btn-row mistakes__actions" wx:if="{{question.actions.length > 0}}">
+          <view
+            class="btn btn--sm"
+            wx:for="{{question.actions}}"
+            wx:key="to"
+            wx:for-item="action"
+            data-id="{{question.id}}"
+            data-to="{{action.to}}"
+            bindtap="onTransition"
+            hover-class="btn--hover"
+          >
+            {{action.label}}
+          </view>
+        </view>
+      </view>
+    </block>
+    <view class="empty" wx:else>还没有错题记录</view>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+</view>

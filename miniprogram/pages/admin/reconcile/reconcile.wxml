@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <!-- 这页只有负责人能读，老师进来会拿到 FORBIDDEN，原话显示出来 -->
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">
+        <text>{{checkedText}}</text>
+        <text class="{{summaryTagClass}}">{{summaryTagText}}</text>
+      </view>
+      <view class="card__hint">
+        只读核对：把缓存余额和流水重算结果逐个比对，发现差异只告警，不自动覆盖。
+      </view>
+    </view>
+
+    <!-- 有差异才出现这张卡：没问题的时候不该占屏 -->
+    <view class="card" wx:if="{{mismatches.length > 0}}">
+      <view class="card__title">差异明细</view>
+      <view class="row" wx:for="{{mismatches}}" wx:key="studentId" wx:for-item="item">
+        <view class="row__main">
+          <view class="row__title">{{item.name}}</view>
+          <view class="row__sub">{{item.subText}}</view>
+        </view>
+        <view class="row__value reconcile__diff">{{item.diffText}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card__title">全部学员</view>
+      <view class="empty" wx:if="{{items.length === 0}}">还没有学员</view>
+      <view class="row" wx:for="{{items}}" wx:key="studentId" wx:for-item="item">
+        <view class="row__main">
+          <view class="row__title">{{item.name}}</view>
+        </view>
+        <view class="row__value">{{item.computedText}}</view>
+      </view>
+    </view>
+  </block>
+</view>

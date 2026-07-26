@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <!-- 没有 audit.read 的账号会走到这里，显示服务端的原话而不是白屏 -->
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card__hint">所有敏感操作都会留痕。日志只增不删，任何角色都没有删除入口。</view>
+    </view>
+
+    <view class="empty" wx:if="{{logs.length === 0}}">还没有记录</view>
+
+    <view class="card" wx:else>
+      <view class="row" wx:for="{{logs}}" wx:key="id" wx:for-item="log">
+        <view class="row__main">
+          <view class="row__title">{{log.titleText}}</view>
+          <view class="row__sub">{{log.subText}}</view>
+        </view>
+        <text class="text-small text-muted audit__stamp">{{log.stamp}}</text>
+      </view>
+    </view>
+  </block>
+</view>

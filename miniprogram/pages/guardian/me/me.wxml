@@ -1,0 +1,65 @@
+<view class="page page--tabbed">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="row">
+        <view class="avatar">{{avatarText}}</view>
+        <view class="row__main">
+          <view class="row__title">{{displayName}}</view>
+          <view class="row__sub">{{boundText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card__title">
+        <text>我的孩子</text>
+        <view class="btn btn--sm" bindtap="goBind" hover-class="btn--hover">再绑一个</view>
+      </view>
+
+      <view class="empty" wx:if="{{students.length === 0}}">还没有绑定孩子</view>
+      <block wx:else>
+        <view class="row" wx:for="{{students}}" wx:key="id">
+          <view class="avatar avatar--accent">{{item.avatarText}}</view>
+          <view class="row__main">
+            <view class="row__title">{{item.title}}</view>
+            <view class="row__sub">{{item.sub}}</view>
+          </view>
+          <view class="row__value">{{item.value}}</view>
+        </view>
+      </block>
+    </view>
+
+    <view class="card" wx:if="{{pendings.length > 0}}">
+      <view class="card__title">等待审核</view>
+      <view class="row" wx:for="{{pendings}}" wx:key="key">
+        <view class="row__main">
+          <view class="row__title">{{item.studentName}}</view>
+          <view class="row__sub">{{item.sub}}</view>
+        </view>
+        <text class="tag tag--gold">待审核</text>
+      </view>
+    </view>
+
+    <!-- 双身份用户才看得到 -->
+    <view class="card" wx:if="{{isManagement}}">
+      <view class="card__title">身份</view>
+      <view class="card__hint">你同时拥有管理端身份。两边数据不混在一起，需要时显式切换。</view>
+      <view class="btn btn--primary btn--block me__action" bindtap="goAdmin" hover-class="btn--hover">
+        切换到管理工作台
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card__title">关于</view>
+      <view class="card__hint">暖芽辅导班 · 家长端。绑定码由辅导班生成，一人一码、固定不变。</view>
+      <view class="btn btn--ghost btn--block me__action" bindtap="onLogout" hover-class="btn--hover">退出登录</view>
+    </view>
+  </block>
+</view>

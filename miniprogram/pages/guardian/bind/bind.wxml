@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">输入绑定码</view>
+      <view class="card__hint">绑定码由辅导班建立学员档案时生成，一人一码、固定不变。同一个码爸爸妈妈都能用。</view>
+
+      <view class="field bind__code">
+        <input
+          class="{{codeClass}}"
+          value="{{codeDisplay}}"
+          placeholder="····-····"
+          placeholder-class="code-input__placeholder"
+          maxlength="9"
+          bindinput="onCodeInput"
+        />
+        <view class="field__hint" wx:if="{{codeHint}}">{{codeHint}}</view>
+        <view class="field__ok" wx:if="{{codeOk}}">{{codeOk}}</view>
+        <view class="field__error" wx:if="{{codeError}}">{{codeError}}</view>
+
+        <!-- 第三层体验：服务端回的脱敏姓名，让家长确认绑的是自家娃 -->
+        <view class="code-preview" wx:if="{{preview}}">
+          <text class="tag">已找到</text>
+          <text>{{preview.studentHint}} · {{preview.grade}}</text>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field__label">关系</view>
+        <picker mode="selector" range="{{relations}}" bindchange="onRelationChange">
+          <view class="picker-field">
+            <text>{{relation}}</text>
+            <text class="row__arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="{{bindClass}}" bindtap="onBind" hover-class="btn--hover">{{bindText}}</view>
+    </view>
+  </block>
+</view>

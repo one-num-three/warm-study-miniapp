@@ -1,0 +1,133 @@
+<view class="login">
+  <!-- 品牌区：和 H5 登录页同一套视觉（深绿背景 + 暖黄的「芽」字牌） -->
+  <view class="login__brand">
+    <view class="login__mark">芽</view>
+    <view class="login__title">暖芽辅导班</view>
+    <view class="login__sub">
+      {{mode === 'guardian' ? '输入辅导班给的绑定码，就能看到孩子的每一天' : '老师与负责人入口'}}
+    </view>
+  </view>
+
+  <!-- 启动中 -->
+  <view class="login__card" wx:if="{{booting}}">
+    <view class="loading">正在进入…</view>
+  </view>
+
+  <block wx:else>
+    <!-- 启动失败（后端没起 / 没配合法域名）时先把话说清楚 -->
+    <view class="error-box" wx:if="{{bootError}}">
+      <text class="error-box__text">{{bootError}}</text>
+      <view class="btn btn--sm" bindtap="retryBoot" hover-class="btn--hover">重试</view>
+    </view>
+
+    <!-- ------------------------------ 家长：绑定码 ------------------------------ -->
+    <view class="login__card" wx:if="{{mode === 'guardian'}}">
+      <view class="field">
+        <view class="field__label">孩子的绑定码</view>
+        <input
+          class="{{codeClass}}"
+          value="{{codeDisplay}}"
+          placeholder="····-····"
+          placeholder-class="code-input__placeholder"
+          maxlength="9"
+          bindinput="onCodeInput"
+        />
+        <view class="field__hint" wx:if="{{codeHint}}">{{codeHint}}</view>
+        <view class="field__error" wx:if="{{codeError}}">{{codeError}}</view>
+
+        <!-- 第三层体验：服务端回的脱敏姓名，让家长确认绑的是自家娃 -->
+        <view class="code-preview" wx:if="{{preview}}">
+          <text class="tag">已找到</text>
+          <text>{{preview.studentHint}} · {{preview.grade}}</text>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field__label">你和孩子的关系</view>
+        <picker mode="selector" range="{{relations}}" bindchange="onRelationChange">
+          <view class="picker-field">
+            <text>{{relation}}</text>
+            <text class="row__arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="field__label">你的称呼（选填）</view>
+        <input
+          class="input"
+          value="{{guardianName}}"
+          placeholder="老师这样称呼你，例如「小满妈妈」"
+          maxlength="20"
+          bindinput="onGuardianNameInput"
+        />
+      </view>
+
+      <view
+        class="btn btn--primary btn--block {{canBind && !binding ? '' : 'is-disabled'}}"
+        bindtap="onBind"
+        hover-class="btn--hover"
+      >
+        {{binding ? '绑定中…' : '绑定孩子'}}
+      </view>
+
+      <!-- 已经绑过孩子又回到登录页 -->
+      <block wx:if="{{boundNames}}">
+        <view class="divider"></view>
+        <view class="card__hint">你已绑定：{{boundNames}}</view>
+        <view class="btn btn--block" style="margin-top:16rpx" bindtap="enterGuardian" hover-class="btn--hover">
+          直接进入家长端
+        </view>
+      </block>
+    </view>
+
+    <!-- ------------------------------ 管理端：账密 ------------------------------ -->
+    <view class="login__card" wx:else>
+      <view class="field">
+        <view class="field__label">登录名</view>
+        <input class="input" value="{{username}}" placeholder="登录名" maxlength="30" bindinput="onUsernameInput" />
+      </view>
+      <view class="field">
+        <view class="field__label">密码</view>
+        <input
+          class="input"
+          value="{{password}}"
+          password="{{true}}"
+          placeholder="密码"
+          maxlength="40"
+          bindinput="onPasswordInput"
+        />
+      </view>
+      <view
+        class="btn btn--primary btn--block {{staffLogging ? 'is-disabled' : ''}}"
+        bindtap="onStaffLogin"
+        hover-class="btn--hover"
+      >
+        {{staffLogging ? '登录中…' : '登录管理端'}}
+      </view>
+      <view class="divider"></view>
+      <view class="card__hint">演示账号：负责人 owner / warm2026，老师 teacher / warm2026</view>
+      <view class="btn btn--sm" style="margin-top:16rpx" bindtap="quickOwnerLogin" hover-class="btn--hover">
+        用负责人账号快速登录
+      </view>
+    </view>
+
+    <!-- 身份切换 -->
+    <view class="login__switch">
+      <view
+        class="login__switch-item {{mode === 'guardian' ? 'is-active' : ''}}"
+        data-mode="guardian"
+        bindtap="switchMode"
+      >
+        我是家长
+      </view>
+      <view class="login__switch-item {{mode === 'staff' ? 'is-active' : ''}}" data-mode="staff" bindtap="switchMode">
+        老师 / 负责人
+      </view>
+    </view>
+
+    <view class="card__hint" style="margin-top:36rpx;text-align:center">
+      绑定码由辅导班在建立学员档案时生成，一人一码、固定不变。
+    </view>
+  </block>
+</view>

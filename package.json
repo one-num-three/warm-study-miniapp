@@ -1,15 +1,34 @@
 {
-  "name": "warm-study-h5",
+  "name": "warm-study",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "暖芽辅导班 —— 微信小程序 + H5 双端，共享核心领域逻辑，Node + SQLite 后端",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "workspaces": [
+    "shared",
+    "server",
+    "h5"
+  ],
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "build:shared": "npm run build --workspace shared",
+    "build:server": "npm run build --workspace server",
+    "build:h5": "npm run build --workspace h5",
+    "build": "npm run build:shared && npm run sync:shared && npm run build:server && npm run build:h5",
+    "sync:shared": "node scripts/sync-shared-to-miniprogram.mjs",
+    "dev:server": "npm run dev --workspace server",
+    "dev:h5": "npm run dev --workspace h5",
+    "dev": "node scripts/dev.mjs",
+    "seed": "npm run seed --workspace server",
+    "test": "npm run build:shared && npm run test --workspace shared && npm run test --workspace server",
+    "test:e2e": "node scripts/e2e.mjs",
+    "typecheck": "tsc -b shared server --force"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "@types/node": "^26.1.1",
+    "playwright": "^1.62.0",
+    "typescript": "^5.8.3"
   }
 }

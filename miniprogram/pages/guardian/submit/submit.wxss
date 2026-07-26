@@ -1,0 +1,10 @@
+/* 提交页的元素全部来自 app.wxss，这里只调两处间距：
+   「添加一项」和「提交给老师」两个通栏按钮挨在一起时容易误点，中间必须留出手指宽度。 */
+
+.submit__bind {
+  margin-top: 24rpx;
+}
+
+.submit__add {
+  margin-bottom: 20rpx;
+}

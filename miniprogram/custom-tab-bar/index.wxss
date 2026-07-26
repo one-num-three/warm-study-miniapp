@@ -1,0 +1,1 @@
+/* 挂载点本身不需要样式，真正的样式在 /components/tab-bar/index.wxss */

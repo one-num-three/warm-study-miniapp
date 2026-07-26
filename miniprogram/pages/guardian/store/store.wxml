@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+  <view class="empty" wx:elif="{{noStudent}}">还没有绑定孩子</view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">{{headText}}</view>
+      <view class="card__hint">兑换要到辅导班现场找老师办理，家长端不能自助扣分 —— 避免误操作。</view>
+    </view>
+
+    <view class="section-title">可兑换商品</view>
+
+    <block wx:if="{{products.length > 0}}">
+      <view class="card" wx:for="{{products}}" wx:key="id">
+        <view class="card__title">
+          <text class="store__name">{{item.name}}</text>
+          <text class="{{item.stockClass}}">{{item.stockText}}</text>
+        </view>
+        <view class="card__hint" wx:if="{{item.description}}">{{item.description}}</view>
+        <view class="spread store__foot">
+          <text class="store__cost">{{item.costText}}</text>
+          <text class="tag tag--gold" wx:if="{{item.limitText}}">{{item.limitText}}</text>
+        </view>
+      </view>
+    </block>
+    <view class="empty" wx:else>暂时没有上架商品</view>
+
+    <view class="section-title">兑换记录</view>
+
+    <view class="card" wx:if="{{records.length > 0}}">
+      <!-- 撤销过的记录划掉但保留，账要经得起回头查 -->
+      <view class="row" wx:for="{{records}}" wx:key="id">
+        <view class="row__main">
+          <view class="{{item.titleClass}}">{{item.productName}}</view>
+          <view class="row__sub">{{item.stamp}}</view>
+        </view>
+        <text class="{{item.tagClass}}">{{item.tagText}}</text>
+      </view>
+    </view>
+    <view class="empty" wx:else>还没有兑换过</view>
+  </block>
+</view>

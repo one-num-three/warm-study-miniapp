@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "今日看板",
+  "usingComponents": {
+    "tab-bar": "/components/tab-bar/index",
+    "form-modal": "/components/form-modal/index"
+  }
+}

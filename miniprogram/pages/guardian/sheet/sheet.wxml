@@ -1,0 +1,47 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">
+        <text class="sheet__name">{{titleText}}</text>
+        <text class="{{sheet.tone}}">{{sheet.status}}</text>
+      </view>
+
+      <block wx:if="{{sheet.items.length > 0}}">
+        <view class="row" wx:for="{{sheet.items}}" wx:key="id">
+          <image wx:if="{{item.image}}" class="thumb thumb--sm" src="{{item.image}}" mode="aspectFill" />
+          <view class="row__main">
+            <view class="row__title">{{item.subject}}</view>
+            <view class="row__sub">{{item.content}}</view>
+          </view>
+          <text class="tag tag--muted">{{item.status}}</text>
+        </view>
+      </block>
+      <view class="empty" wx:else>这份作业还没有具体项目</view>
+    </view>
+
+    <view class="card" wx:if="{{sheet.feedback}}">
+      <view class="card__title">老师反馈</view>
+      <view class="card__hint">{{sheet.feedback}}</view>
+    </view>
+
+    <view class="card" wx:if="{{sheet.unfinishedReason}}">
+      <view class="card__title">未完成原因</view>
+      <view class="card__hint">{{sheet.unfinishedReason}}</view>
+    </view>
+
+    <view
+      class="btn btn--ghost btn--block sheet__withdraw"
+      wx:if="{{canWithdraw}}"
+      bindtap="onWithdraw"
+      hover-class="btn--hover"
+    >
+      {{withdrawText}}
+    </view>
+  </block>
+</view>
