@@ -75,7 +75,8 @@ warm-study/
 │   └── test/        81 个接口集成测试
 ├── h5/              Vite + TS 的 H5 端（小程序风格：自定义 TabBar + 页面栈）
 ├── miniprogram/     原生微信小程序（24 个页面）
-├── scripts/         dev / e2e / sync-shared
+├── design-system/   自动生成的组件库（给设计师看的，含 index.html 单页总览）
+├── scripts/         dev / e2e / sync-shared / build-design-system
 ├── docs/            截图与补充文档
 └── specs/           原始规格文档（保留）
 ```
@@ -99,6 +100,7 @@ warm-study/
 | `npm test` | 单元测试 + 接口测试 |
 | `npm run test:e2e` | 真浏览器端到端验收，输出截图到 `docs/screenshots/` |
 | `npm run sync:shared` | 把 shared 编译产物同步进 `miniprogram/shared/` |
+| `npm run build:design` | 从 `h5/src/styles.css` 生成设计系统组件库到 `design-system/` |
 | `npm run typecheck` | 全量类型检查 |
 
 ---
@@ -150,6 +152,18 @@ E2E 覆盖的主链路：负责人登录 → 建学员拿绑定码 → 家长输
 截图见 `docs/screenshots/`。
 
 ---
+
+## 设计系统
+
+```bash
+npm run build:design
+```
+
+从 `h5/src/styles.css` 生成 `design-system/`：16 张组件卡片 + 一页总览 `index.html` + `tokens.json`。
+
+每个预览文件都**内联真实的 styles.css 原文**，不是另写的演示样式 —— 所以预览里看到的就是线上的样子，设计师改动能一对一映射回类名。哪天有人改了样式忘了同步设计稿，重跑一次立刻能看出差异。
+
+产物首行带 `<!-- @dsCard group="…" -->` 标记，符合 Claude Design 设计系统项目的导入格式。改版约束（不能引 Web 字体、图标禁用 emoji、家长端排行必须脱敏等）写在 `design-system/README.md` 里。
 
 ## 已知边界
 
