@@ -76,8 +76,8 @@ warm-study/
 ├── h5/              Vite + TS 的 H5 端（小程序风格：自定义 TabBar + 页面栈）
 ├── miniprogram/     原生微信小程序（24 个页面）
 ├── design-system/   自动生成的组件库（给设计师看的，含 index.html 单页总览）
-├── scripts/         dev / e2e / sync-shared / build-design-system
-├── docs/            截图与补充文档
+├── scripts/         dev / e2e / sync-shared / build-wxss / check-mp / build-design
+├── docs/            截图、迁移文档（h5-to-miniprogram.md）
 └── specs/           原始规格文档（保留）
 ```
 
@@ -101,6 +101,8 @@ warm-study/
 | `npm run test:e2e` | 真浏览器端到端验收，输出截图到 `docs/screenshots/` |
 | `npm run sync:shared` | 把 shared 编译产物同步进 `miniprogram/shared/` |
 | `npm run build:design` | 从 `h5/src/styles.css` 生成设计系统组件库到 `design-system/` |
+| `npm run build:wxss` | 从 H5 的设计令牌生成 `miniprogram/styles/tokens.wxss` |
+| `npm run check:mp` | 小程序静态校验（绑定、wx:key、组件路径、令牌漂移、契约一致性） |
 | `npm run typecheck` | 全量类型检查 |
 
 ---
@@ -128,14 +130,17 @@ warm-study/
 npm run build:shared && npm run sync:shared
 ```
 
-然后用**微信开发者工具**打开 `miniprogram/` 目录。上线前必做的几件事详见 `miniprogram/README.md`：
+然后用**微信开发者工具**打开 `miniprogram/` 目录。
 
-1. 把 `miniprogram/utils/api.ts` 里的 `API_BASE` 改成你的后端域名
-2. `project.config.json` 里的 `appid` 换成你自己的
-3. 小程序后台配置 request 合法域名
-4. 订阅消息模板需要自己申请后接入
+采用的是「共享领域逻辑 + 各自的平台壳」，没有上 Taro / uni-app —— 理由、能力对照表、上线前 checklist 全部写在 **[`docs/h5-to-miniprogram.md`](docs/h5-to-miniprogram.md)**。
 
-> **诚实说明**：小程序端的代码逻辑、接口契约和引用路径都做了静态校验（24 个页面三件套齐备、51 个接口调用点全部命中契约、`tsc --noEmit` 通过），但**没有在微信开发者工具里真实渲染或点击过** —— 云端沙箱跑不了开发者工具。最可能需要现场微调的是自定义 TabBar 的挂载和 WXSS 内联 SVG 图标的渲染。H5 端则是在真浏览器里完整跑通并截图验证过的。
+三个脚本各守一段，保证两端不漂：
+
+- `sync:shared` —— 领域逻辑同源（绑定码、积分口径、状态机、权限）
+- `build:wxss` —— 设计令牌同源（改 H5 的 `:root` 即两端生效）
+- `check:mp` —— 九项静态校验，已进 `npm test`
+
+> **诚实说明**：云端沙箱装不了微信开发者工具，所以小程序端**没有一次真实渲染或点击**。静态层面是过关的（24 个页面四件套齐备、模板绑定与事件处理函数逐一核对、令牌零漂移、接口路径全部命中契约），而且这个校验器是用**故意注入的六个故障**验证过的，不是摆设。剩下的风险集中在视图层：自定义 TabBar 的挂载、WXSS 内联 SVG 图标的渲染、受控输入的光标行为 —— `docs/h5-to-miniprogram.md` 第五节逐条列了。H5 端则是在真浏览器里完整跑通并截图验证过的。
 
 ---
 
