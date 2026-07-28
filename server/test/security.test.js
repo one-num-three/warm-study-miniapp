@@ -389,10 +389,10 @@ test("接娃提醒按 requestId 幂等，网络重试不会发两条", async () 
 
   const requestId = reqId("notice");
   const first = ok(
-    await post(ctx.base, "/reminders", { studentId: student.id, minutes: 30, requestId }, staffToken),
+    await post(ctx.base, "/reminders", { studentId: student.id, etaAt: "17:40", requestId }, staffToken),
   );
   const retry = ok(
-    await post(ctx.base, "/reminders", { studentId: student.id, minutes: 30, requestId }, staffToken),
+    await post(ctx.base, "/reminders", { studentId: student.id, etaAt: "17:40", requestId }, staffToken),
   );
   assert.equal(retry.reminder.id, first.reminder.id, "重试应返回同一条提醒");
   assert.equal(retry.duplicate, true);

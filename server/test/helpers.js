@@ -7,12 +7,12 @@ import { createApp } from "../dist/app.js";
 import { ensureSeed } from "../dist/seed.js";
 
 /** 起一个跑在随机端口上的临时服务，每个测试文件独立数据库。 */
-export async function startTestServer() {
+export async function startTestServer(options = {}) {
   const dir = mkdtempSync(join(tmpdir(), "warm-study-test-"));
   const dbPath = join(dir, "test.db");
   const db = new Db(dbPath);
   const seed = ensureSeed(db);
-  const server = createServer(createApp(db));
+  const server = createServer(createApp(db, options));
   await new Promise((resolve) => server.listen(0, resolve));
   const { port } = server.address();
   const base = `http://127.0.0.1:${port}/api`;

@@ -644,7 +644,7 @@ test("没有已绑定家长的学生发提醒时明确返回 delivered:false，�
     await post(
       ctx.base,
       "/reminders",
-      { studentId: created.student.id, minutes: 20, requestId: reqId("rem") },
+      { studentId: created.student.id, etaAt: "17:40", requestId: reqId("rem") },
       staffToken,
     ),
     "给没绑家长的孩子发提醒",

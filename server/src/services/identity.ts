@@ -28,6 +28,7 @@ import {
   resolveWechatOpenId,
   sessionExpiry,
   verifyPassword,
+  type WechatIdentityResolver,
 } from "../auth.js";
 import type { AuthInfo, RequestContext } from "../http.js";
 import { getSetting, nowIso, writeAudit, type Actor } from "../core.js";
@@ -176,11 +177,12 @@ export interface LoginResult {
  */
 export async function login(
   db: Db,
-  input: { loginType: "wechat" | "device"; code: string; displayName?: string },
+  input: { loginType: "wechat" | "device"; code: string; developmentIdentity?: string; displayName?: string },
+  resolveWechatIdentity: WechatIdentityResolver = resolveWechatOpenId,
 ): Promise<LoginResult> {
   const rawIdentity =
     input.loginType === "wechat"
-      ? await resolveWechatOpenId(input.code)
+      ? await resolveWechatIdentity({ code: input.code, developmentIdentity: input.developmentIdentity })
       : `device:${input.code}`;
   const identityHash = hashIdentity(rawIdentity);
 

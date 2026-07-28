@@ -41,6 +41,7 @@ import * as points from "./services/points.js";
 import * as store from "./services/store.js";
 import * as mistakes from "./services/mistakes.js";
 import * as admin from "./services/admin.js";
+import type { WechatIdentityResolver } from "./auth.js";
 
 /** 从 query 里取 dateKey，缺省用今天。非法日期直接拒掉，不让脏数据进业务层。 */
 function queryDateKey(ctx: RequestContext): string {
@@ -73,7 +74,11 @@ function itemsOf(ctx: RequestContext): Array<{ subject: string; content: string;
   });
 }
 
-export function createApp(db: Db) {
+export interface AppOptions {
+  resolveWechatIdentity?: WechatIdentityResolver;
+}
+
+export function createApp(db: Db, options: AppOptions = {}) {
   const router = new Router();
 
   /* --------------------------------- 健康检查 --------------------------------- */
@@ -90,7 +95,20 @@ export function createApp(db: Db) {
     })!;
     const code = requireString(ctx.body, "code", { label: "登录凭证", max: 256 });
     const displayName = optionalString(ctx.body, "displayName", { max: 20, label: "称呼" });
-    return identity.login(db, { loginType, code, ...(displayName ? { displayName } : {}) });
+    const developmentIdentity = optionalString(ctx.body, "developmentIdentity", {
+      max: 128,
+      label: "开发安装标识",
+    });
+    return identity.login(
+      db,
+      {
+        loginType,
+        code,
+        ...(loginType === "wechat" && developmentIdentity ? { developmentIdentity } : {}),
+        ...(displayName ? { displayName } : {}),
+      },
+      options.resolveWechatIdentity,
+    );
   });
 
   router.post("/api/auth/staff-login", (ctx) => {

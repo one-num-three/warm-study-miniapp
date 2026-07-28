@@ -32,6 +32,8 @@ export interface LoginRequest {
   /** wechat：小程序 wx.login 拿到的 code；device：H5 浏览器持久化的设备标识 */
   loginType: "wechat" | "device";
   code: string;
+  /** 仅本地开发回退使用的、由小程序本地持久化的安装标识；生产环境忽略此字段。 */
+  developmentIdentity?: string;
   /** 首次进入时的称呼，可选 */
   displayName?: string;
 }
