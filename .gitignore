@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .vite/
+.worktrees/
 .DS_Store
 *.log
 .env
