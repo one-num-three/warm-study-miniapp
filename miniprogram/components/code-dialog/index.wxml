@@ -1,0 +1,12 @@
+<!-- 绑定码弹层：大字 + 复制，老师照着念给家长 -->
+<view class="mask mask--center" wx:if="{{show}}" bindtap="onClose">
+  <view class="dialog" catchtap="noop">
+    <view class="dialog__title">{{title}}</view>
+    <view class="code-dialog__code">{{code}}</view>
+    <view class="dialog__body" wx:if="{{body}}">{{body}}</view>
+    <view class="btn-row">
+      <view class="btn btn--ghost" style="flex:1" bindtap="onCopy" hover-class="btn--hover">复制</view>
+      <view class="btn btn--primary" style="flex:1" bindtap="onClose" hover-class="btn--hover">知道了</view>
+    </view>
+  </view>
+</view>

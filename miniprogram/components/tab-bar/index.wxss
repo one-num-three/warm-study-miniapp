@@ -1,0 +1,114 @@
+/**
+ * 底部导航条样式。
+ *
+ * 图标是内联的线性 SVG data URI（stroke 版本，粗细 1.7），
+ * 未选中 #9aa79d、选中 #2f5b45，因此每个图标写两条规则。
+ * 用 background-image 而不是 <image src>：WXSS 的 data URI 在真机和开发者工具上表现都稳定，
+ * <image> 组件对 SVG 的支持在部分基础库版本上有差异。
+ *
+ * 注意：本文件里的 data URI 是按 h5/src/icons.ts 的路径生成的，
+ * 两端图标保持同一套，改图标请两边一起改。
+ */
+
+.tabbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 200;
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #fffaf0;
+  border-top: 2rpx solid #e3d8c2;
+}
+
+.tabbar__item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 112rpx;
+  color: #9aa79d;
+  font-size: 22rpx;
+}
+
+.tabbar__item--hover {
+  opacity: 0.7;
+}
+
+.tabbar__item.is-active {
+  color: #2f5b45;
+  font-weight: 700;
+}
+
+.tabbar__icon {
+  width: 44rpx;
+  height: 44rpx;
+  margin-bottom: 6rpx;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.tabbar__text {
+  line-height: 1.2;
+}
+
+/* --------------------------- 线性图标（未选中 / 选中） --------------------------- */
+
+.ico-today {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M3 9h18M7 3v3m10-3v3M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-today {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M3 9h18M7 3v3m10-3v3M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z%27/%3E%3C/svg%3E");
+}
+
+.ico-homework {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-homework {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4%27/%3E%3C/svg%3E");
+}
+
+.ico-growth {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M4 19V9m5 10V5m5 14v-7m5 7V8%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-growth {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M4 19V9m5 10V5m5 14v-7m5 7V8%27/%3E%3C/svg%3E");
+}
+
+.ico-me {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 8a8 8 0 0 1 16 0%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-me {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 8a8 8 0 0 1 16 0%27/%3E%3C/svg%3E");
+}
+
+.ico-board {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9-3h7v10h-7V10Z%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-board {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9-3h7v10h-7V10Z%27/%3E%3C/svg%3E");
+}
+
+.ico-students {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 9a7 7 0 0 1 14 0M17 8a2.5 2.5 0 1 0 0-5M18 20a6 6 0 0 0-2-4.5%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-students {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 9a7 7 0 0 1 14 0M17 8a2.5 2.5 0 1 0 0-5M18 20a6 6 0 0 0-2-4.5%27/%3E%3C/svg%3E");
+}
+
+.ico-manage {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239aa79d%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8.4-3a8.4 8.4 0 0 0-.13-1.45l2.06-1.6-2-3.46-2.43.98a8.4 8.4 0 0 0-2.5-1.45L15 2.4h-4l-.4 2.62a8.4 8.4 0 0 0-2.5 1.45l-2.43-.98-2 3.46 2.06 1.6a8.4 8.4 0 0 0 0 2.9l-2.06 1.6 2 3.46 2.43-.98a8.4 8.4 0 0 0 2.5 1.45L11 21.6h4l.4-2.62a8.4 8.4 0 0 0 2.5-1.45l2.43.98 2-3.46-2.06-1.6c.09-.47.13-.96.13-1.45Z%27/%3E%3C/svg%3E");
+}
+
+.is-active .ico-manage {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%232f5b45%27 stroke-width=%271.7%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8.4-3a8.4 8.4 0 0 0-.13-1.45l2.06-1.6-2-3.46-2.43.98a8.4 8.4 0 0 0-2.5-1.45L15 2.4h-4l-.4 2.62a8.4 8.4 0 0 0-2.5 1.45l-2.43-.98-2 3.46 2.06 1.6a8.4 8.4 0 0 0 0 2.9l-2.06 1.6 2 3.46 2.43-.98a8.4 8.4 0 0 0 2.5 1.45L11 21.6h4l.4-2.62a8.4 8.4 0 0 0 2.5-1.45l2.43.98 2-3.46-2.06-1.6c.09-.47.13-.96.13-1.45Z%27/%3E%3C/svg%3E");
+}

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "绑定审核",
+  "usingComponents": {
+    "form-modal": "/components/form-modal/index"
+  }
+}

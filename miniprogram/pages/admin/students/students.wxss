@@ -1,0 +1,11 @@
+/* 学员列表的私有间距。骨架（.card / .code-plate / .btn）都来自 app.wxss，这里只补两处呼吸。 */
+
+/* 顶部主按钮和第一张学员卡之间要断开，否则看起来像卡片的一部分 */
+.students__create {
+  margin-bottom: 24rpx;
+}
+
+/* 绑定码牌子下面紧跟"积分 + 详情"，不留白会挤在牌子的圆角上 */
+.students__foot {
+  margin-top: 20rpx;
+}

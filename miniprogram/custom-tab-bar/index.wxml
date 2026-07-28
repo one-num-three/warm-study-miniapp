@@ -1,0 +1,1 @@
+<tab-bar active="{{active}}" role="{{role}}"></tab-bar>

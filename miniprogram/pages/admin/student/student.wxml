@@ -1,0 +1,128 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- ---------------------------------- 档案 ---------------------------------- -->
+    <view class="card">
+      <view class="card__title">
+        <text>{{detail.name}}</text>
+        <text class="{{detail.statusClass}}">{{detail.statusText}}</text>
+      </view>
+      <view class="row__sub">{{detail.subText}}</view>
+
+      <view class="{{detail.plateClass}}" style="margin-top:20rpx">
+        <view>
+          <view class="code-plate__label">{{detail.plateLabel}}</view>
+          <view class="code-plate__code">{{detail.bindingCodeDisplay}}</view>
+        </view>
+        <view
+          class="btn btn--sm"
+          data-code="{{detail.bindingCodeDisplay}}"
+          catchtap="onCopyCode"
+          hover-class="btn--hover"
+        >
+          复制
+        </view>
+      </view>
+
+      <!-- 停用 / 重置绑定码属于负责人的手段，老师看不到 -->
+      <view class="btn-row student__code-actions" wx:if="{{canBindingCode}}">
+        <view class="btn btn--sm btn--ghost" bindtap="onToggleCode" hover-class="btn--hover">
+          {{detail.toggleCodeText}}
+        </view>
+        <view class="btn btn--sm btn--ghost" bindtap="onResetCode" hover-class="btn--hover">重置绑定码</view>
+      </view>
+    </view>
+
+    <!-- -------------------------------- 已绑定的家长 -------------------------------- -->
+    <view class="card">
+      <view class="card__title">已绑定的家长</view>
+      <view class="empty" wx:if="{{guardians.length === 0}}">还没有家长绑定</view>
+      <view class="row" wx:for="{{guardians}}" wx:key="bindingId" wx:for-item="guardian">
+        <view class="row__main">
+          <view class="row__title">{{guardian.titleText}}</view>
+          <view class="row__sub">{{guardian.stamp}}</view>
+        </view>
+        <text class="{{guardian.toneClass}}">{{guardian.status}}</text>
+        <view
+          wx:if="{{guardian.canRelease}}"
+          class="btn btn--sm btn--ghost"
+          data-id="{{guardian.bindingId}}"
+          data-name="{{guardian.displayName}}"
+          bindtap="onReleaseGuardian"
+          hover-class="btn--hover"
+        >
+          解除
+        </view>
+      </view>
+    </view>
+
+    <!-- ---------------------------------- 积分 ---------------------------------- -->
+    <view class="card">
+      <view class="card__title">
+        <text>{{pointsTitle}}</text>
+        <text class="{{balanceTagClass}}">{{balanceTagText}}</text>
+      </view>
+
+      <view class="btn-row student__points-actions" wx:if="{{canGrant || canRedeem}}">
+        <view wx:if="{{canGrant}}" class="btn btn--sm btn--primary" bindtap="onGrantPoints" hover-class="btn--hover">
+          发放积分
+        </view>
+        <view wx:if="{{canRedeem}}" class="btn btn--sm" bindtap="onRedeem" hover-class="btn--hover">现场兑换</view>
+      </view>
+
+      <view class="empty" wx:if="{{entries.length === 0}}">还没有积分记录</view>
+      <view class="row" wx:for="{{entries}}" wx:key="id" wx:for-item="entry">
+        <view class="row__main">
+          <view class="{{entry.titleClass}}">{{entry.reason}}</view>
+          <view class="row__sub">{{entry.subText}}</view>
+        </view>
+        <view class="{{entry.deltaClass}}">{{entry.deltaText}}</view>
+        <view
+          wx:if="{{entry.canReverse}}"
+          class="btn btn--sm btn--ghost"
+          data-id="{{entry.id}}"
+          bindtap="onReverseLedger"
+          hover-class="btn--hover"
+        >
+          冲正
+        </view>
+      </view>
+    </view>
+
+    <!-- -------------------------------- 档案管理 -------------------------------- -->
+    <view class="card" wx:if="{{canManage}}">
+      <view class="card__title">档案管理</view>
+      <view class="btn-row">
+        <view class="btn btn--sm" bindtap="onEditStudent" hover-class="btn--hover">编辑</view>
+        <view class="btn btn--sm" bindtap="onToggleRanking" hover-class="btn--hover">{{detail.rankingText}}</view>
+        <view class="{{detail.statusBtnClass}}" bindtap="onToggleStatus" hover-class="btn--hover">
+          {{detail.statusBtnText}}
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+
+  <code-dialog
+    show="{{codeShow}}"
+    title="{{codeTitle}}"
+    code="{{codeValue}}"
+    body="{{codeBody}}"
+    bind:close="onCodeClose"
+  />
+</view>

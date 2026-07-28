@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "学员详情",
+  "usingComponents": {
+    "form-modal": "/components/form-modal/index",
+    "code-dialog": "/components/code-dialog/index"
+  }
+}

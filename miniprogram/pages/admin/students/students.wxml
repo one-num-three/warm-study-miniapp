@@ -1,0 +1,73 @@
+<view class="page page--tabbed">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- 老师没有 student.manage，这个入口对他直接不存在 -->
+    <view
+      wx:if="{{canManage}}"
+      class="btn btn--primary btn--block students__create"
+      bindtap="onCreateStudent"
+      hover-class="btn--hover"
+    >
+      新增学员（自动生成绑定码）
+    </view>
+
+    <view class="empty" wx:if="{{students.length === 0}}">还没有学员</view>
+
+    <block wx:else>
+      <view class="card" wx:for="{{students}}" wx:key="id" wx:for-item="item">
+        <view class="card__title">
+          <text>{{item.titleText}}</text>
+          <text class="{{item.tagClass}}">{{item.tagText}}</text>
+        </view>
+
+        <!-- 绑定码牌子：这一页最该被一眼看到的东西 -->
+        <view class="{{item.plateClass}}" style="margin-top:20rpx">
+          <view>
+            <view class="code-plate__label">{{item.bindingCodeEnabled ? '绑定码' : '绑定码已停用'}}</view>
+            <view class="code-plate__code">{{item.codeDisplay}}</view>
+          </view>
+          <view
+            class="btn btn--sm"
+            data-code="{{item.codeDisplay}}"
+            catchtap="onCopyCode"
+            hover-class="btn--hover"
+          >
+            复制
+          </view>
+        </view>
+
+        <view class="spread students__foot">
+          <text class="text-small text-muted">{{item.balanceText}}</text>
+          <view class="btn btn--sm" data-id="{{item.id}}" bindtap="onOpenDetail" hover-class="btn--hover">
+            详情
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+
+  <code-dialog
+    show="{{codeShow}}"
+    title="{{codeTitle}}"
+    code="{{codeValue}}"
+    body="{{codeBody}}"
+    bind:close="onCodeClose"
+  />
+</view>
+<tab-bar active="{{2}}" role="admin"></tab-bar>

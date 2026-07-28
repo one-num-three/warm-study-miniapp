@@ -1,0 +1,67 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- 待办放最上面：负责人开这一页十次有九次只为清掉它 -->
+    <view class="card">
+      <view class="card__title">待审核</view>
+
+      <view class="empty" wx:if="{{pending.length === 0}}">没有待审核的申请</view>
+
+      <view class="row" wx:for="{{pending}}" wx:key="id" wx:for-item="item">
+        <view class="row__main">
+          <view class="row__title">{{item.titleText}}</view>
+          <view class="row__sub">{{item.subText}}</view>
+        </view>
+        <view class="btn-row" wx:if="{{canReview}}">
+          <view
+            class="btn btn--sm btn--primary"
+            data-id="{{item.id}}"
+            bindtap="onApprove"
+            hover-class="btn--hover"
+          >
+            通过
+          </view>
+          <view
+            class="btn btn--sm btn--ghost"
+            data-id="{{item.id}}"
+            bindtap="onReject"
+            hover-class="btn--hover"
+          >
+            拒绝
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底账：已通过 / 已拒绝 / 已解除，只读 -->
+    <view class="card">
+      <view class="card__title">全部绑定关系</view>
+
+      <view class="empty" wx:if="{{others.length === 0}}">暂无记录</view>
+
+      <view class="row" wx:for="{{others}}" wx:key="id" wx:for-item="item">
+        <view class="row__main">
+          <view class="row__title">{{item.titleText}}</view>
+          <view class="row__sub">{{item.subText}}</view>
+        </view>
+        <text class="{{item.toneClass}}">{{item.status}}</text>
+      </view>
+    </view>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+</view>

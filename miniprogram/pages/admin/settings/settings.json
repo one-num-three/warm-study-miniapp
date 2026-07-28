@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "系统设置",
+  "usingComponents": {
+    "form-modal": "/components/form-modal/index"
+  }
+}

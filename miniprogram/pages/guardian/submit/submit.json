@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "提交作业",
+  "usingComponents": {
+    "form-modal": "/components/form-modal/index"
+  }
+}

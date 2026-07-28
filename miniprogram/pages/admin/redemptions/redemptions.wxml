@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="empty" wx:if="{{items.length === 0}}">还没有兑换记录</view>
+
+    <view class="card" wx:else>
+      <view class="row" wx:for="{{items}}" wx:key="id" wx:for-item="item">
+        <view class="row__main">
+          <view class="{{item.titleClass}}">{{item.titleText}}</view>
+          <view class="row__sub">{{item.subText}}</view>
+        </view>
+
+        <!-- 已撤销 / 可撤销 / 只读已完成，三选一 -->
+        <text class="tag tag--muted" wx:if="{{item.reversed}}">已撤销</text>
+        <view
+          wx:elif="{{item.showReverse}}"
+          class="btn btn--sm btn--ghost"
+          data-id="{{item.id}}"
+          bindtap="onReverse"
+          hover-class="btn--hover"
+        >
+          撤销
+        </view>
+        <text class="tag" wx:elif="{{item.showDone}}">已完成</text>
+      </view>
+    </view>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+</view>

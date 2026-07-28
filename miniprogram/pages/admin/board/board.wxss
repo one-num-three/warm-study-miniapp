@@ -1,0 +1,19 @@
+/* 看板的骨架样式都在 app.wxss（.metric / .card / .row / .btn），
+   这里只补三条页面私有的间距与字重。 */
+
+/* 指标区和下面的卡片之间留一口气 */
+.board__metrics {
+  margin-bottom: 20rpx;
+}
+
+/* 学员姓名是这张卡的标题，比正文重一点，但不抢状态标签的注意力 */
+.board__name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+/* 一个孩子的按钮最多能排到四个（流转 + 提醒 + 撤回），
+   .btn-row 自带换行，这里只负责和上面的副标题分开 */
+.board__actions {
+  margin-top: 20rpx;
+}

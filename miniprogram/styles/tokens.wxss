@@ -1,0 +1,45 @@
+/**
+ * 设计令牌 —— 自动生成，请勿手改。
+ *
+ * 来源：h5/src/styles.css 的 :root 块
+ * 生成：npm run build:wxss（脚本 scripts/build-miniprogram-wxss.mjs）
+ *
+ * 长度已按 375 设计稿从 px 换算成 rpx（1px = 2rpx）。
+ * 要改配色或圆角，请改 h5/src/styles.css，然后重新生成 —— 两端同时生效。
+ */
+
+page {
+  /* 主色 —— 深绿，取自原型 */
+  --c-primary: #2f5b45;
+  --c-primary-soft: #e8f0e3;
+  --c-primary-ink: #1e3c2d;
+  /* 强调 —— 陶土红 / 暖黄 */
+  --c-accent: #d06a43;
+  --c-gold: #e0a93f;
+  /* 背景层次：页面底 → 卡片 → 卡内分区，靠明度拉开，不靠边框 */
+  --c-bg: #f0ebde;
+  --c-surface: #fffdf6;
+  --c-surface-2: #f8f3e6;
+  /* 描边：卡片外沿用暖色发丝线，卡片内部用几乎看不见的中性线 */
+  --c-line: #ebe2d0;
+  --c-line-soft: rgba(39, 51, 45, 0.055);
+  /* 文字 */
+  --c-ink: #27332d;
+  --c-ink-2: #6b7a6f;
+  --c-ink-3: #9ba79e;
+  /* 语义色 */
+  --c-danger: #bf4430;
+  --c-success: #3d7a52;
+  --c-warn: #b8801f;
+  /* 圆角：三档就够，再多就散了 */
+  --r-sm: 20rpx;
+  --r-md: 28rpx;
+  --r-lg: 36rpx;
+  --r-pill: 1998rpx;
+  --shadow-1: 0 2rpx 3rpx rgba(39, 51, 45, 0.04), 0 6rpx 20rpx rgba(39, 51, 45, 0.045);
+  --shadow-2: 0 4rpx 12rpx rgba(39, 51, 45, 0.07), 0 32rpx 64rpx rgba(39, 51, 45, 0.1);
+  --shadow-primary: 0 2rpx 4rpx rgba(30, 60, 45, 0.22), 0 12rpx 32rpx rgba(30, 60, 45, 0.16);
+  --tabbar-h: 112rpx;
+  /* 统一的缓动，收尾慢一点显得从容 */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+}

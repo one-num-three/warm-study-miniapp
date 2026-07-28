@@ -1,0 +1,9 @@
+/* 成长页复用 app.wxss 的 .hero / .metric / .rank，这里只补间距。 */
+
+.growth__bind {
+  margin-top: 24rpx;
+}
+
+.growth__entries {
+  margin-bottom: 24rpx;
+}

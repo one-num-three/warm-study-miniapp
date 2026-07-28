@@ -1,0 +1,31 @@
+{
+  // 小程序端 TypeScript 配置。
+  //
+  // 说明：本仓库是离线环境，没有安装 miniprogram-api-typings，
+  // 因此这里不写 "types": ["miniprogram-api-typings"]（写了会因为找不到包直接报错），
+  // 改用 typings/index.d.ts 里手写的兜底声明。
+  // 如果你的机器能联网，执行 `npm i -D miniprogram-api-typings` 后
+  // 把下面的 "types" 换成 ["miniprogram-api-typings"] 并删掉 typings/index.d.ts 即可获得完整类型。
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "lib": ["ES2020"],
+    "types": [],
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    // 刻意关掉 strict：业务重点是跑通流程，接口返回的结构用 any 承接并在注释里写清含义，
+    // 不为了类型完美而拖慢功能落地（见 README「类型策略」）。
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "experimentalDecorators": true
+  },
+  "include": ["./**/*.ts", "./typings/**/*.d.ts"],
+  "exclude": ["node_modules", "shared"]
+}

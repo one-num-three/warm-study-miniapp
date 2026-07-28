@@ -1,0 +1,50 @@
+<view class="page page--tabbed">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="goLogin" hover-class="btn--hover">去登录</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="row">
+        <view class="avatar">{{avatarText}}</view>
+        <view class="row__main">
+          <view class="row__title">{{displayName}}</view>
+          <view class="row__sub">{{roleText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- entries 已经在 .ts 里按权限过滤过，这里不再做任何判断 -->
+    <view class="card">
+      <view
+        class="row"
+        wx:for="{{entries}}"
+        wx:key="page"
+        wx:for-item="entry"
+        data-page="{{entry.page}}"
+        bindtap="onOpenEntry"
+        hover-class="manage__row--hover"
+      >
+        <view class="row__main">
+          <view class="row__title">{{entry.label}}</view>
+          <view class="row__sub">{{entry.hint}}</view>
+        </view>
+        <view class="row__arrow">›</view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{showSwitch}}">
+      <view class="card__title">身份</view>
+      <view class="card__hint">你也绑定了孩子，可以切换到家长端查看。</view>
+      <view class="btn btn--block manage__switch" bindtap="onSwitchGuardian" hover-class="btn--hover">
+        切换到家长端
+      </view>
+    </view>
+
+    <view class="btn btn--ghost btn--block" bindtap="onLogout" hover-class="btn--hover">退出登录</view>
+  </block>
+</view>
+<tab-bar active="{{3}}" role="admin"></tab-bar>

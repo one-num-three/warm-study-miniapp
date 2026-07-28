@@ -1,0 +1,13 @@
+/* 弹层的骨架样式在 app.wxss（.mask / .sheet / .field），这里只补组件私有的细节。
+   组件开启了 addGlobalClass，所以全局类可以直接用。 */
+
+.sheet {
+  animation: form-modal-rise 0.18s ease;
+}
+
+@keyframes form-modal-rise {
+  from {
+    transform: translateY(40rpx);
+    opacity: 0.6;
+  }
+}

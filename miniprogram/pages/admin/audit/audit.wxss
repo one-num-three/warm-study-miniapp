@@ -1,0 +1,7 @@
+/* 审计日志的私有样式。行骨架来自 app.wxss 的 .row，这里只管右侧时间戳。 */
+
+/* 时间戳不能被左边的长操作名挤成两行，也不该抢走主文案的宽度 */
+.audit__stamp {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}

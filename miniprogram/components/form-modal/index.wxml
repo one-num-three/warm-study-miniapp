@@ -1,0 +1,77 @@
+<!-- 通用表单弹层：从底部升起，字段由调用页面声明 -->
+<view class="mask" wx:if="{{show}}" bindtap="onCancel">
+  <view class="sheet" catchtap="noop">
+    <view class="sheet__title">{{title}}</view>
+    <view class="card__hint" wx:if="{{hint}}" style="margin-bottom:24rpx">{{hint}}</view>
+
+    <view class="field" wx:for="{{rows}}" wx:key="name" wx:for-item="row" wx:for-index="index">
+      <view class="field__label">{{row.label}}{{row.required ? ' *' : ''}}</view>
+
+      <!-- 多行文本 -->
+      <textarea
+        wx:if="{{row.type === 'textarea'}}"
+        class="textarea"
+        value="{{row.value}}"
+        placeholder="{{row.placeholder}}"
+        maxlength="{{row.maxlength}}"
+        data-index="{{index}}"
+        bindinput="onInput"
+      />
+
+      <!-- 下拉选择：小程序没有 select，用 picker -->
+      <picker
+        wx:elif="{{row.type === 'select'}}"
+        mode="selector"
+        range="{{row.options}}"
+        data-index="{{index}}"
+        bindchange="onPick"
+      >
+        <view class="picker-field">
+          <text wx:if="{{row.value}}">{{row.value}}</text>
+          <text wx:else class="picker-field__placeholder">{{row.placeholder || '请选择'}}</text>
+          <text class="row__arrow">›</text>
+        </view>
+      </picker>
+
+      <!-- 图片：选完直接转成 data URI 存在 value 里 -->
+      <block wx:elif="{{row.type === 'image'}}">
+        <image wx:if="{{row.value}}" class="thumb" src="{{row.value}}" mode="aspectFill" />
+        <view class="btn-row" style="margin-top:16rpx">
+          <view class="btn btn--sm" data-index="{{index}}" bindtap="onChooseImage" hover-class="btn--hover">
+            {{row.value ? '重新选择' : '选择图片'}}
+          </view>
+          <view
+            wx:if="{{row.value}}"
+            class="btn btn--sm btn--ghost"
+            data-index="{{index}}"
+            bindtap="onClearImage"
+            hover-class="btn--hover"
+          >
+            移除
+          </view>
+        </view>
+      </block>
+
+      <!-- 单行文本 / 数字 / 密码 -->
+      <input
+        wx:else
+        class="input"
+        value="{{row.value}}"
+        type="{{row.inputType}}"
+        password="{{row.password}}"
+        placeholder="{{row.placeholder}}"
+        maxlength="{{row.maxlength}}"
+        data-index="{{index}}"
+        bindinput="onInput"
+      />
+
+      <view class="field__hint" wx:if="{{row.hint}}">{{row.hint}}</view>
+      <view class="field__error" wx:if="{{row.error}}">{{row.error}}</view>
+    </view>
+
+    <view class="btn-row" style="margin-top:8rpx">
+      <view class="btn btn--ghost" style="flex:1" bindtap="onCancel" hover-class="btn--hover">{{cancelText}}</view>
+      <view class="btn btn--primary" style="flex:2" bindtap="onSubmit" hover-class="btn--hover">{{submitText}}</view>
+    </view>
+  </view>
+</view>

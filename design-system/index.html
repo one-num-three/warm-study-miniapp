@@ -1,0 +1,1912 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>暖芽辅导班 · 设计系统</title>
+<style>
+/**
+ * 设计令牌与基础样式。
+ *
+ * 刻意不引外部字体：小程序包体装不下中文字体子集，
+ * design.md §4.4 也写明「包体不允许则降级为平台默认中文字体」，
+ * 这里保持一致，两端观感统一。
+ *
+ * 视觉上的取舍：配色沿用原型（深绿 + 暖米 + 陶土），
+ * 精力放在"手艺"而不是"花样" —— 层次靠极淡的投影而不是到处描边，
+ * 中文行高给足，数字用等宽对齐，每个可点元素都有明确的按下反馈。
+ */
+
+:root {
+  /* 主色 —— 深绿，取自原型 */
+  --c-primary: #2f5b45;
+  --c-primary-soft: #e8f0e3;
+  --c-primary-ink: #1e3c2d;
+  /* 强调 —— 陶土红 / 暖黄 */
+  --c-accent: #d06a43;
+  --c-gold: #e0a93f;
+  /* 背景层次：页面底 → 卡片 → 卡内分区，靠明度拉开，不靠边框 */
+  --c-bg: #f0ebde;
+  --c-surface: #fffdf6;
+  --c-surface-2: #f8f3e6;
+  /* 描边：卡片外沿用暖色发丝线，卡片内部用几乎看不见的中性线 */
+  --c-line: #ebe2d0;
+  --c-line-soft: rgba(39, 51, 45, 0.055);
+  /* 文字 */
+  --c-ink: #27332d;
+  --c-ink-2: #6b7a6f;
+  --c-ink-3: #9ba79e;
+  /* 语义色 */
+  --c-danger: #bf4430;
+  --c-success: #3d7a52;
+  --c-warn: #b8801f;
+
+  /* 圆角：三档就够，再多就散了 */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  /**
+   * 投影只有两档，都压得很低。
+   * 暖米底色上一旦投影发灰就会脏，所以用主色的墨绿做阴影色而不是纯黑。
+   */
+  --shadow-1: 0 1px 1.5px rgba(39, 51, 45, 0.04), 0 3px 10px rgba(39, 51, 45, 0.045);
+  --shadow-2: 0 2px 6px rgba(39, 51, 45, 0.07), 0 16px 32px rgba(39, 51, 45, 0.1);
+  --shadow-primary: 0 1px 2px rgba(30, 60, 45, 0.22), 0 6px 16px rgba(30, 60, 45, 0.16);
+
+  --tabbar-h: 56px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* 统一的缓动，收尾慢一点显得从容 */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC",
+    "Source Han Sans SC", sans-serif;
+  color: var(--c-ink);
+  /* 中文正文行高要比西文给得多，1.5 会挤 */
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--c-bg);
+  overscroll-behavior-y: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 键盘可达性：只在键盘聚焦时出现，不干扰触摸 */
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 11px 12px;
+  background: #fff;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  outline: none;
+  transition: border-color 0.16s var(--ease), box-shadow 0.16s var(--ease);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #c4bcab;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(47, 91, 69, 0.12);
+}
+
+textarea {
+  min-height: 84px;
+  line-height: 1.65;
+  resize: vertical;
+}
+
+/* --------------------------------- 外壳 --------------------------------- */
+
+#app {
+  height: 100%;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  height: 100%;
+  margin: 0 auto;
+  background: var(--c-bg);
+  box-shadow: 0 0 60px rgba(39, 51, 45, 0.14);
+  overflow: hidden;
+}
+
+/**
+ * 导航栏。原来是一块纯色硬边，和内容之间像被刀切开。
+ * 现在给一层极轻的竖向渐变 + 一道压边阴影，让它有"盖在内容之上"的关系。
+ */
+.navbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 13px) 16px 13px;
+  background: linear-gradient(180deg, #35654e 0%, var(--c-primary) 100%);
+  color: #fdf8ec;
+  box-shadow: 0 1px 0 rgba(30, 46, 36, 0.28), 0 4px 14px rgba(30, 46, 36, 0.12);
+}
+
+.navbar__back {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: -8px;
+  border-radius: 50%;
+  color: #fdf8ec;
+  transition: background 0.16s var(--ease);
+}
+
+.navbar__back:active {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.navbar__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__extra {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: rgba(253, 248, 236, 0.72);
+}
+
+.page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 16px 16px calc(20px + var(--safe-b));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.shell--tabbed .page {
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-b) + 20px);
+}
+
+/* -------------------------------- TabBar -------------------------------- */
+
+.tabbar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: min(480px, 100%);
+  margin: 0 auto;
+  padding-bottom: var(--safe-b);
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-line);
+  box-shadow: 0 -2px 14px rgba(39, 51, 45, 0.05);
+}
+
+.tabbar__item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: var(--tabbar-h);
+  color: var(--c-ink-3);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  transition: color 0.16s var(--ease);
+}
+
+.tabbar__item.is-active {
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+.tabbar__icon {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-width 0.16s var(--ease);
+}
+
+/* 选中态把线加粗一点，比单纯变色更容易一眼扫到 */
+.tabbar__item.is-active .tabbar__icon {
+  stroke-width: 2.1;
+}
+
+.tabbar__badge {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  margin-left: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  background: var(--c-accent);
+  border: 1.5px solid var(--c-surface);
+  border-radius: var(--r-pill);
+}
+
+/* --------------------------------- 卡片 --------------------------------- */
+
+/**
+ * 卡片是承载 90% 内容的容器。
+ * 原来只靠 1px 描边区分层次，一屏堆五六张就像线框图；
+ * 现在改成"极淡投影 + 更浅的发丝线"，纸片感出来了，描边也不抢戏。
+ */
+.card {
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.card--flat {
+  background: var(--c-surface-2);
+  box-shadow: none;
+}
+
+.card__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.card__hint {
+  margin: 0;
+  color: var(--c-ink-2);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 20px 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-ink-2);
+  letter-spacing: 0.08em;
+}
+
+.empty {
+  padding: 32px 16px;
+  color: var(--c-ink-3);
+  font-size: 13px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* --------------------------------- 按钮 --------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--c-primary);
+  background: var(--c-primary-soft);
+  border-radius: var(--r-md);
+  transition: transform 0.12s var(--ease), background 0.16s var(--ease),
+    box-shadow 0.16s var(--ease);
+}
+
+/* 按下时轻微下沉，比缩放更像"按到了实体" */
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+  background: #dde9d7;
+}
+
+.btn--primary {
+  color: #fdf8ec;
+  background: var(--c-primary);
+  box-shadow: var(--shadow-primary);
+}
+
+.btn--primary:active:not(:disabled) {
+  background: #27503c;
+  box-shadow: 0 1px 2px rgba(30, 60, 45, 0.2);
+}
+
+.btn--accent {
+  color: #fff;
+  background: var(--c-accent);
+  box-shadow: 0 1px 2px rgba(150, 70, 40, 0.2), 0 6px 16px rgba(150, 70, 40, 0.14);
+}
+
+.btn--accent:active:not(:disabled) {
+  background: #bd5c37;
+}
+
+.btn--ghost {
+  color: var(--c-ink-2);
+  background: transparent;
+  border: 1px solid var(--c-line);
+}
+
+.btn--ghost:active:not(:disabled) {
+  background: rgba(39, 51, 45, 0.04);
+}
+
+.btn--danger {
+  color: #fff;
+  background: var(--c-danger);
+  box-shadow: 0 1px 2px rgba(140, 40, 28, 0.2), 0 6px 16px rgba(140, 40, 28, 0.14);
+}
+
+.btn--danger:active:not(:disabled) {
+  background: #a83a28;
+}
+
+.btn:disabled {
+  box-shadow: none;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--sm {
+  min-height: 32px;
+  padding: 0 11px;
+  font-size: 12px;
+  border-radius: var(--r-sm);
+  box-shadow: none;
+}
+
+.btn--sm.btn--primary,
+.btn--sm.btn--accent,
+.btn--sm.btn--danger {
+  box-shadow: none;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --------------------------------- 标签 --------------------------------- */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  border-radius: var(--r-pill);
+  background: var(--c-primary-soft);
+  color: var(--c-primary);
+  white-space: nowrap;
+}
+
+.tag--gold {
+  background: #fbf1d8;
+  color: #9c6c14;
+}
+
+.tag--accent {
+  background: #fae3d9;
+  color: #b1522f;
+}
+
+.tag--muted {
+  background: rgba(39, 51, 45, 0.06);
+  color: var(--c-ink-2);
+}
+
+.tag--danger {
+  background: #f8dfda;
+  color: var(--c-danger);
+}
+
+/* --------------------------------- 列表 --------------------------------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row:first-child {
+  padding-top: 2px;
+}
+
+.row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.row__title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row__sub {
+  margin-top: 4px;
+  color: var(--c-ink-2);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.row__value {
+  flex: 0 0 auto;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  color: #fdf8ec;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--c-primary);
+  border-radius: 50% 50% 50% 10px;
+  box-shadow: 0 2px 6px rgba(30, 60, 45, 0.18);
+}
+
+.avatar--accent {
+  background: var(--c-accent);
+  box-shadow: 0 2px 6px rgba(150, 70, 40, 0.18);
+}
+
+/* --------------------------------- 网格 --------------------------------- */
+
+.grid {
+  display: grid;
+  gap: 8px;
+}
+
+.grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/**
+ * 指标格去掉了描边。六个方块各描一圈的话，看板会变成一张表格；
+ * 靠纸片感和留白区分反而更清爽。
+ */
+.metric {
+  padding: 13px 11px;
+  background: var(--c-surface);
+  border: 0;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-1);
+  text-align: left;
+}
+
+.metric strong {
+  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-primary);
+}
+
+.metric span {
+  display: block;
+  margin-top: 6px;
+  color: var(--c-ink-3);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.metric.is-alert strong {
+  color: var(--c-accent);
+}
+
+/* --------------------------------- 表单 --------------------------------- */
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field__label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.field__hint {
+  margin: 7px 0 0;
+  color: var(--c-ink-2);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.field__error {
+  margin: 7px 0 0;
+  color: var(--c-danger);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+/* ------------------------------- 绑定码输入 ------------------------------- */
+
+/**
+ * 家长第一次打开小程序面对的唯一一个输入框，值得单独调。
+ * 字距拉开是为了让 8 位码看起来是"一串号码"而不是一个单词。
+ */
+.code-input {
+  width: 100%;
+  padding: 15px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  /* 字距会让文本整体右偏，补一点左内边距把它拉回视觉中心 */
+  text-indent: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+  background: #fff;
+  border: 1.5px solid var(--c-line);
+  border-radius: var(--r-md);
+  transition: border-color 0.16s var(--ease), background 0.16s var(--ease),
+    box-shadow 0.16s var(--ease);
+}
+
+.code-input::placeholder {
+  color: #d3cbba;
+  letter-spacing: 0.18em;
+}
+
+.code-input:focus {
+  box-shadow: 0 0 0 3px rgba(47, 91, 69, 0.1);
+}
+
+.code-input.is-valid {
+  border-color: var(--c-primary);
+  background: #f7fbf5;
+}
+
+.code-input.is-invalid {
+  border-color: var(--c-danger);
+  background: #fff7f5;
+  box-shadow: 0 0 0 3px rgba(191, 68, 48, 0.08);
+}
+
+.code-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 11px 12px;
+  background: var(--c-primary-soft);
+  border-radius: var(--r-md);
+  font-size: 13px;
+}
+
+/**
+ * 管理端展示绑定码的牌子 —— 老师就是照着它把码抄到纸条上给家长的，
+ * 所以码本身必须是这一块里最大最清楚的元素。
+ */
+.code-plate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 14px;
+  background: linear-gradient(135deg, #35654e, #2b533f);
+  color: #fdf8ec;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-primary);
+}
+
+.code-plate__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.code-plate__label {
+  margin-bottom: 2px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(253, 248, 236, 0.7);
+}
+
+.code-plate .btn {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fdf8ec;
+}
+
+.code-plate .btn:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.code-plate.is-disabled {
+  background: linear-gradient(135deg, #97a29a, #8b968e);
+  box-shadow: none;
+}
+
+/* --------------------------------- 登录 --------------------------------- */
+
+.login {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 0 20px calc(26px + var(--safe-b));
+  background: linear-gradient(180deg, #35654e 0%, #2f5b45 200px, var(--c-bg) 200px);
+}
+
+.login__brand {
+  padding: calc(env(safe-area-inset-top, 0px) + 36px) 0 28px;
+  color: #fdf8ec;
+}
+
+.login__mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 15px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #2f5b45;
+  background: var(--c-gold);
+  border-radius: 16px 16px 16px 5px;
+  box-shadow: 0 4px 14px rgba(20, 40, 30, 0.24);
+  transform: rotate(-4deg);
+}
+
+.login__brand h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.login__brand p {
+  margin: 7px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(253, 248, 236, 0.78);
+}
+
+.login__card {
+  padding: 20px 18px 22px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+  box-shadow: 0 4px 12px rgba(30, 46, 36, 0.08), 0 20px 40px rgba(30, 46, 36, 0.12);
+}
+
+.login__switch {
+  display: flex;
+  gap: 4px;
+  margin-top: 18px;
+  padding: 4px;
+  background: rgba(39, 51, 45, 0.05);
+  border-radius: var(--r-md);
+}
+
+.login__switch button {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-ink-2);
+  border-radius: var(--r-sm);
+  transition: background 0.16s var(--ease), color 0.16s var(--ease);
+}
+
+.login__switch button.is-active {
+  color: var(--c-primary);
+  background: var(--c-surface);
+  box-shadow: 0 1px 3px rgba(39, 51, 45, 0.12);
+}
+
+/* ------------------------------ 弹层 / 提示 ------------------------------ */
+
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(28, 36, 30, 0.42);
+  animation: fade 0.18s var(--ease);
+}
+
+.mask--center {
+  align-items: center;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet {
+  width: min(480px, 100%);
+  max-height: 86vh;
+  padding: 20px 18px calc(20px + var(--safe-b));
+  overflow-y: auto;
+  background: var(--c-surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: 0 -8px 40px rgba(28, 36, 30, 0.2);
+  animation: rise 0.24s var(--ease);
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(22px);
+  }
+}
+
+/* 顶部一道小横条，暗示"这层可以往下收" */
+.sheet__title {
+  position: relative;
+  margin: 0 0 14px;
+  padding-top: 10px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.sheet__title::before {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 34px;
+  height: 4px;
+  content: "";
+  background: rgba(39, 51, 45, 0.12);
+  border-radius: var(--r-pill);
+  transform: translateX(-50%);
+}
+
+.dialog {
+  width: min(320px, 86%);
+  padding: 22px 20px 16px;
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  text-align: center;
+  animation: pop 0.2s var(--ease);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+
+.dialog__title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dialog__body {
+  margin: 0 0 18px;
+  color: var(--c-ink-2);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 90;
+  max-width: 74%;
+  padding: 13px 18px;
+  color: #fff8ea;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+  background: rgba(33, 43, 36, 0.94);
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 28px rgba(20, 28, 22, 0.3);
+  transform: translate(-50%, -50%);
+  animation: fade 0.16s var(--ease);
+  pointer-events: none;
+}
+
+.toast--error {
+  background: rgba(146, 44, 30, 0.95);
+}
+
+.loading {
+  padding: 44px 0;
+  color: var(--c-ink-3);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* --------------------------------- 杂项 --------------------------------- */
+
+/**
+ * 家长端首屏的积分块。
+ * 加了一层右上角的高光，让纯色渐变不至于太平。
+ */
+.hero {
+  position: relative;
+  padding: 18px;
+  margin-bottom: 12px;
+  color: #fdf8ec;
+  background:
+    radial-gradient(120% 90% at 88% -10%, rgba(255, 255, 255, 0.16), transparent 60%),
+    linear-gradient(135deg, #35654e, #2b533f);
+  border-radius: var(--r-lg);
+  box-shadow: 0 2px 8px rgba(30, 46, 36, 0.14), 0 14px 30px rgba(30, 46, 36, 0.14);
+  overflow: hidden;
+}
+
+.hero__label {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(253, 248, 236, 0.76);
+}
+
+.hero__value {
+  display: block;
+  margin-top: 5px;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__foot {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: rgba(253, 248, 236, 0.8);
+}
+
+.picker {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+
+.picker::-webkit-scrollbar {
+  display: none;
+}
+
+.picker button {
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-ink-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  transition: background 0.16s var(--ease), color 0.16s var(--ease),
+    border-color 0.16s var(--ease);
+}
+
+.picker button.is-active {
+  color: #fdf8ec;
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  box-shadow: 0 2px 8px rgba(30, 60, 45, 0.18);
+}
+
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.rank:last-child {
+  border-bottom: 0;
+}
+
+.rank__no {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-ink-2);
+  background: rgba(39, 51, 45, 0.05);
+  border-radius: var(--r-sm);
+}
+
+.rank--top1 .rank__no {
+  color: #7a5a12;
+  background: var(--c-gold);
+  box-shadow: 0 2px 6px rgba(180, 130, 30, 0.28);
+}
+
+.rank--top2 .rank__no,
+.rank--top3 .rank__no {
+  color: #fff;
+  background: #b3a68b;
+}
+
+.rank.is-self {
+  padding-left: 9px;
+  padding-right: 9px;
+  margin: 0 -9px;
+  background: #f4f9f1;
+  border-radius: var(--r-sm);
+  border-bottom-color: transparent;
+}
+
+.ledger__delta {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger__delta.is-plus {
+  color: var(--c-success);
+}
+
+.ledger__delta.is-minus {
+  color: var(--c-accent);
+}
+
+.is-reversed {
+  color: var(--c-ink-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.thumb {
+  width: 100%;
+  max-height: 180px;
+  margin-top: 10px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  background: var(--c-surface-2);
+}
+
+.thumb--sm {
+  width: 54px;
+  height: 54px;
+  margin: 0;
+  border-radius: var(--r-sm);
+}
+
+.divider {
+  height: 1px;
+  margin: 14px 0;
+  background: var(--c-line-soft);
+}
+
+.text-muted {
+  color: var(--c-ink-2);
+}
+
+.text-small {
+  font-size: 12px;
+}
+
+.stack {
+  display: grid;
+  gap: 8px;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+}
+
+.switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 27px;
+  background: #cfc7b6;
+  border-radius: var(--r-pill);
+  transition: background 0.18s var(--ease);
+  cursor: pointer;
+}
+
+.switch.is-on {
+  background: var(--c-primary);
+}
+
+.switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  content: "";
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(39, 51, 45, 0.24);
+  transition: transform 0.18s var(--ease);
+}
+
+.switch.is-on::after {
+  transform: translateX(19px);
+}
+
+/* 用户开了「减少动态效果」时，把所有过渡和动画关掉 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ---- 总览页自身的排版，不属于产品样式 ---- */
+body{margin:0;background:#e6e0d2;}
+.ds-top{position:sticky;top:0;z-index:10;padding:14px 20px;background:var(--c-primary);color:#fdf8ec;}
+.ds-top h1{margin:0;font-size:18px;letter-spacing:.06em;}
+.ds-top p{margin:4px 0 10px;font-size:12px;opacity:.85;}
+.ds-top nav{display:flex;flex-wrap:wrap;gap:6px;}
+.ds-top nav a{padding:4px 10px;font-size:12px;color:#fdf8ec;text-decoration:none;background:rgba(255,255,255,.14);border-radius:999px;}
+.ds-wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px;}
+.ds-group{margin-bottom:36px;}
+.ds-group h2{margin:0 0 14px;font-size:15px;letter-spacing:.1em;color:var(--c-ink-2);}
+.ds-grid,.ds-group{display:block;}
+.ds-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(390px,1fr));gap:18px;align-items:start;}
+.ds-group h2{grid-column:1/-1;}
+.ds-card{background:#fff;border:1px solid #d9cfbb;border-radius:16px;overflow:hidden;}
+.ds-card header{padding:12px 14px;border-bottom:1px solid #ece3d2;}
+.ds-card h3{margin:0;font-size:14px;}
+.ds-card header p{margin:3px 0 0;font-size:11px;color:var(--c-ink-2);}
+.ds-card header code{display:block;margin-top:5px;font-size:10px;color:var(--c-ink-3);}
+.ds-frame{padding:16px 14px;background:var(--c-bg);}
+.ds-frame--screen{padding:0;}
+.ds-section{margin:0 0 22px;}
+.ds-section:last-child{margin-bottom:0;}
+.ds-label{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--c-ink-3);}
+.ds-note{margin:6px 0 0;font-size:11px;line-height:1.7;color:var(--c-ink-2);}
+.ds-swatch{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--c-line);}
+.ds-swatch:last-child{border-bottom:0;}
+.ds-chip{width:38px;height:38px;flex:0 0 auto;border-radius:10px;border:1px solid rgba(0,0,0,.08);}
+.ds-swatch code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--c-ink-2);}
+.ds-swatch b{display:block;font-size:13px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.ds-frame .shell{box-shadow:none;width:100%;}
+</style>
+</head>
+<body>
+<div class="ds-top">
+  <h1>暖芽辅导班 · 设计系统</h1>
+  <p>样式取自 h5/src/styles.css 原文，看到什么就是线上什么。改动请对照类名标注。</p>
+  <nav><a href="#g-Foundations">Foundations</a><a href="#g-Components">Components</a><a href="#g-%E7%BB%91%E5%AE%9A%E7%A0%81">绑定码</a><a href="#g-Screens">Screens</a></nav>
+</div>
+<div class="ds-wrap"><section id="g-Foundations" class="ds-group">
+      <h2>Foundations</h2>
+      <article class="ds-card">
+        <header>
+          <h3>色板</h3>
+          <p>主色 / 强调 / 背景层次 / 文字 / 语义</p>
+          <code>foundations/colors.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">全部颜色令牌</p><div class="card"><div class="ds-swatch">
+            <div class="ds-chip" style="background:#2f5b45"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-primary</b>
+              <code>#2f5b45</code>
+            </div>
+            <span class="tag tag--muted">主色 —— 深绿，取自原型</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#e8f0e3"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-primary-soft</b>
+              <code>#e8f0e3</code>
+            </div>
+            <span class="tag tag--muted">主色 —— 深绿，取自原型</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#1e3c2d"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-primary-ink</b>
+              <code>#1e3c2d</code>
+            </div>
+            <span class="tag tag--muted">主色 —— 深绿，取自原型</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#d06a43"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-accent</b>
+              <code>#d06a43</code>
+            </div>
+            <span class="tag tag--muted">强调 —— 陶土红 / 暖黄</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#e0a93f"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-gold</b>
+              <code>#e0a93f</code>
+            </div>
+            <span class="tag tag--muted">强调 —— 陶土红 / 暖黄</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#f0ebde"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-bg</b>
+              <code>#f0ebde</code>
+            </div>
+            <span class="tag tag--muted">背景层次：页面底 → 卡片 → 卡内分区，靠明度拉开，不靠边框</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#fffdf6"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-surface</b>
+              <code>#fffdf6</code>
+            </div>
+            <span class="tag tag--muted">背景层次：页面底 → 卡片 → 卡内分区，靠明度拉开，不靠边框</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#f8f3e6"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-surface-2</b>
+              <code>#f8f3e6</code>
+            </div>
+            <span class="tag tag--muted">背景层次：页面底 → 卡片 → 卡内分区，靠明度拉开，不靠边框</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#ebe2d0"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-line</b>
+              <code>#ebe2d0</code>
+            </div>
+            <span class="tag tag--muted">描边：卡片外沿用暖色发丝线，卡片内部用几乎看不见的中性线</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:rgba(39, 51, 45, 0.055)"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-line-soft</b>
+              <code>rgba(39, 51, 45, 0.055)</code>
+            </div>
+            <span class="tag tag--muted">描边：卡片外沿用暖色发丝线，卡片内部用几乎看不见的中性线</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#27332d"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-ink</b>
+              <code>#27332d</code>
+            </div>
+            <span class="tag tag--muted">文字</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#6b7a6f"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-ink-2</b>
+              <code>#6b7a6f</code>
+            </div>
+            <span class="tag tag--muted">文字</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#9ba79e"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-ink-3</b>
+              <code>#9ba79e</code>
+            </div>
+            <span class="tag tag--muted">文字</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#bf4430"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-danger</b>
+              <code>#bf4430</code>
+            </div>
+            <span class="tag tag--muted">语义色</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#3d7a52"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-success</b>
+              <code>#3d7a52</code>
+            </div>
+            <span class="tag tag--muted">语义色</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:#b8801f"></div>
+            <div style="flex:1;min-width:0">
+              <b>--c-warn</b>
+              <code>#b8801f</code>
+            </div>
+            <span class="tag tag--muted">语义色</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:0 1px 1.5px rgba(39, 51, 45, 0.04), 0 3px 10px rgba(39, 51, 45, 0.045)"></div>
+            <div style="flex:1;min-width:0">
+              <b>--shadow-1</b>
+              <code>0 1px 1.5px rgba(39, 51, 45, 0.04), 0 3px 10px rgba(39, 51, 45, 0.045)</code>
+            </div>
+            <span class="tag tag--muted">圆角：三档就够，再多就散了</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:0 2px 6px rgba(39, 51, 45, 0.07), 0 16px 32px rgba(39, 51, 45, 0.1)"></div>
+            <div style="flex:1;min-width:0">
+              <b>--shadow-2</b>
+              <code>0 2px 6px rgba(39, 51, 45, 0.07), 0 16px 32px rgba(39, 51, 45, 0.1)</code>
+            </div>
+            <span class="tag tag--muted">圆角：三档就够，再多就散了</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:0 1px 2px rgba(30, 60, 45, 0.22), 0 6px 16px rgba(30, 60, 45, 0.16)"></div>
+            <div style="flex:1;min-width:0">
+              <b>--shadow-primary</b>
+              <code>0 1px 2px rgba(30, 60, 45, 0.22), 0 6px 16px rgba(30, 60, 45, 0.16)</code>
+            </div>
+            <span class="tag tag--muted">圆角：三档就够，再多就散了</span>
+          </div></div>
+<p class="ds-note">深绿 <code>--c-primary</code> 是唯一主色，导航栏、主按钮、tab 选中态都用它。陶土红 <code>--c-accent</code> 只用于「要花掉的东西」（扣分、待接、限时提醒），不要拿它当第二主色。</p></div><div class="ds-section"><p class="ds-label">背景的三层关系</p><div style="padding:14px;background:var(--c-bg);border-radius:var(--r-lg)">
+        <p class="ds-note" style="margin:0 0 8px">--c-bg 页面底</p>
+        <div class="card" style="margin-bottom:8px"><div class="card__title">--c-surface 卡片</div>
+          <div class="card--flat" style="padding:10px;border-radius:var(--r-md)">--c-surface-2 卡内分区</div>
+        </div>
+      </div>
+<p class="ds-note">三层都是暖米色系，靠明度拉开而不是靠边框。改配色时请保持这个明度顺序，否则卡片会「浮」不起来。</p></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>字号层级</h3>
+          <p>从 32px 数字到 11px 标签，共 7 级</p>
+          <code>foundations/typography.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">层级</p><div class="card">
+        <div style="font-size:32px;font-weight:700;line-height:1.1">32 / 700　积分数字</div>
+        <div class="ds-note">.hero__value —— 每屏只出现一次</div>
+        <div class="divider"></div>
+        <div style="font-size:24px;font-weight:700;color:var(--c-primary)">24 / 700　看板指标</div>
+        <div class="ds-note">.metric strong</div>
+        <div class="divider"></div>
+        <div style="font-size:17px;font-weight:700">17 / 700　弹层标题</div>
+        <div class="ds-note">.sheet__title</div>
+        <div class="divider"></div>
+        <div style="font-size:16px;font-weight:600">16 / 600　导航栏标题</div>
+        <div class="ds-note">.navbar__title</div>
+        <div class="divider"></div>
+        <div style="font-size:15px;font-weight:700">15 / 700　卡片标题</div>
+        <div class="ds-note">.card__title</div>
+        <div class="divider"></div>
+        <div style="font-size:14px;font-weight:600">14 / 600　列表主行</div>
+        <div class="ds-note">.row__title · 正文按钮也是 14</div>
+        <div class="divider"></div>
+        <div style="font-size:12px;color:var(--c-ink-2)">12 / 400　列表副行、说明文字</div>
+        <div class="ds-note">.row__sub · .card__hint</div>
+        <div class="divider"></div>
+        <div style="font-size:11px;font-weight:600;color:var(--c-ink-3)">11 / 600　标签、指标名</div>
+        <div class="ds-note">.tag · .metric span</div>
+      </div></div><div class="ds-section"><p class="ds-label">字体栈</p><div class="card"><code style="font-size:11px;line-height:1.9;word-break:break-all">system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif</code></div>
+<p class="ds-note"><b>刻意不引任何 Web 字体</b>。小程序包体装不下中文字体子集，规格里也写明「包体不允许则降级为平台默认中文字体」。所以设计时只能用系统字体已有的字重（常规 400 / 中黑 500-600 / 粗 700），不要指定 Light 或特殊字形。</p></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>圆角与间距</h3>
+          <p>3 档圆角 · 8px 栅格 · rpx 换算</p>
+          <code>foundations/spacing-radius.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">圆角</p><div class="card"><div class="ds-swatch">
+            <div class="ds-chip" style="background:var(--c-primary-soft);border-radius:10px"></div>
+            <div style="flex:1"><b>--r-sm</b><code>10px</code></div>
+            <span class="tag tag--muted">小元素</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:var(--c-primary-soft);border-radius:14px"></div>
+            <div style="flex:1"><b>--r-md</b><code>14px</code></div>
+            <span class="tag tag--muted">按钮 / 输入框</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:var(--c-primary-soft);border-radius:18px"></div>
+            <div style="flex:1"><b>--r-lg</b><code>18px</code></div>
+            <span class="tag tag--muted">卡片 / 弹层</span>
+          </div><div class="ds-swatch">
+            <div class="ds-chip" style="background:var(--c-primary-soft);border-radius:999px"></div>
+            <div style="flex:1"><b>--r-pill</b><code>999px</code></div>
+            <span class="tag tag--muted"></span>
+          </div>
+        <div class="ds-swatch">
+          <div class="ds-chip" style="background:var(--c-primary);border-radius:50% 50% 50% 10px"></div>
+          <div style="flex:1"><b>头像</b><code>50% 50% 50% 10px</code></div>
+          <span class="tag tag--muted">刻意不对称</span>
+        </div>
+      </div>
+<p class="ds-note">头像左下角那个 10px 直角是品牌记号，登录页的「芽」字标同理（16px 圆角 + 5px 直角 + 旋转 -4°）。</p></div><div class="ds-section"><p class="ds-label">间距</p><div class="card">
+        <div class="ds-note" style="margin:0 0 8px">页面左右留白 14px，卡片内 14px，卡片之间 12px，列表行上下 11px。</div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <div style="text-align:center"><div style="width:8px;height:8px;background:var(--c-primary-soft);border-radius:4px"></div><code style="font-size:10px">4</code></div><div style="text-align:center"><div style="width:16px;height:16px;background:var(--c-primary-soft);border-radius:4px"></div><code style="font-size:10px">8</code></div><div style="text-align:center"><div style="width:24px;height:24px;background:var(--c-primary-soft);border-radius:4px"></div><code style="font-size:10px">12</code></div><div style="text-align:center"><div style="width:28px;height:28px;background:var(--c-primary-soft);border-radius:4px"></div><code style="font-size:10px">14</code></div><div style="text-align:center"><div style="width:36px;height:36px;background:var(--c-primary-soft);border-radius:4px"></div><code style="font-size:10px">18</code></div><div style="text-align:center"><div style="width:44px;height:44px;background:var(--c-primary-soft);border-radius:4px"></div><code style="font-size:10px">22</code></div>
+        </div>
+      </div>
+<p class="ds-note"><b>小程序换算：375px 设计稿上 1px = 2rpx。</b>标注请给 px，我落地时统一乘 2。触控目标最小 40px（.btn 的 min-height），列表整行可点时最小 44px。</p></div></div>
+      </article>
+    </section><section id="g-Components" class="ds-group">
+      <h2>Components</h2>
+      <article class="ds-card">
+        <header>
+          <h3>按钮</h3>
+          <p>5 种语义 × 2 尺寸 × 通栏/禁用</p>
+          <code>components/buttons.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">语义</p><div class="card">
+        <div class="ds-row">
+          <button class="btn btn--primary">主操作</button>
+          <button class="btn">次操作</button>
+          <button class="btn btn--ghost">弱操作</button>
+        </div>
+        <div class="ds-row" style="margin-top:10px">
+          <button class="btn btn--accent">现场兑换</button>
+          <button class="btn btn--danger">停用学员</button>
+          <button class="btn btn--primary" disabled>禁用态</button>
+        </div>
+      </div>
+<p class="ds-note">一屏最多一个 <code>btn--primary</code>。<code>btn--accent</code> 只给「要花掉积分」的动作，<code>btn--danger</code> 只给不可逆或需要负责人权限的动作。</p></div><div class="ds-section"><p class="ds-label">小尺寸（列表行内）</p><div class="card">
+        <div class="ds-row">
+          <button class="btn btn--sm btn--primary">开始</button>
+          <button class="btn btn--sm">完成</button>
+          <button class="btn btn--sm btn--ghost">未完成</button>
+          <button class="btn btn--sm btn--accent">发接娃提醒</button>
+        </div>
+      </div>
+<p class="ds-note">小尺寸 min-height 30px，只在卡片内的操作行里用；单独成行的操作一律用大尺寸通栏按钮。</p></div><div class="ds-section"><p class="ds-label">通栏</p><div class="card">
+        <button class="btn btn--primary btn--block">新增学员（自动生成绑定码）</button>
+        <button class="btn btn--block" style="margin-top:8px">添加一项</button>
+        <button class="btn btn--ghost btn--block" style="margin-top:8px">退出登录</button>
+      </div></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>状态标签</h3>
+          <p>5 种色调 · 对应业务状态机</p>
+          <code>components/tags.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">色调</p><div class="card"><div class="ds-row">
+        <span class="tag">默认</span>
+        <span class="tag tag--gold">进行中</span>
+        <span class="tag tag--accent">需注意</span>
+        <span class="tag tag--muted">已结束</span>
+        <span class="tag tag--danger">异常</span>
+      </div></div></div><div class="ds-section"><p class="ds-label">每日到班状态（正向推进）</p><div class="card"><div class="ds-row">
+        <span class="tag tag--muted">待到班</span>
+        <span style="color:var(--c-ink-3)">→</span>
+        <span class="tag">已到班</span>
+        <span style="color:var(--c-ink-3)">→</span>
+        <span class="tag tag--gold">辅导中</span>
+        <span style="color:var(--c-ink-3)">→</span>
+        <span class="tag tag--accent">待接</span>
+        <span style="color:var(--c-ink-3)">→</span>
+        <span class="tag">已接走</span>
+      </div></div>
+<p class="ds-note">「待接」用陶土红是有意的 —— 这是唯一需要老师立刻行动的状态，看板上也用它做高亮指标。</p></div><div class="ds-section"><p class="ds-label">作业单状态</p><div class="card"><div class="ds-row">
+        <span class="tag">待确认</span>
+        <span class="tag tag--accent">需要补充</span>
+        <span class="tag tag--gold">辅导中</span>
+        <span class="tag">已完成</span>
+        <span class="tag tag--muted">未完成</span>
+        <span class="tag tag--muted">已撤回</span>
+      </div></div></div><div class="ds-section"><p class="ds-label">错题状态</p><div class="card"><div class="ds-row">
+        <span class="tag tag--accent">待订正</span>
+        <span class="tag tag--gold">已订正</span>
+        <span class="tag">已掌握</span>
+      </div></div></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>卡片与列表行</h3>
+          <p>承载 90% 内容的两个容器</p>
+          <code>components/cards-rows.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">标准卡片</p><div class="card">
+        <div class="card__title"><div>今天在班里</div><span class="tag tag--gold">辅导中</span></div>
+        <p class="card__hint">卡片标题右侧可以放一个状态标签或一个小按钮，两者不同时出现。</p>
+      </div></div><div class="ds-section"><p class="ds-label">列表行（三种右侧形态）</p><div class="card">
+        <div class="row">
+          <div class="avatar">张</div>
+          <div class="row__main">
+            <div class="row__title">张小满（小满）</div>
+            <div class="row__sub">三年级 · 我是妈妈</div>
+          </div>
+          <div class="row__value">40 分</div>
+        </div>
+        <div class="row">
+          <div class="avatar avatar--accent">陈</div>
+          <div class="row__main">
+            <div class="row__title">陈知夏</div>
+            <div class="row__sub">四年级 · 作业待确认</div>
+          </div>
+          <button class="btn btn--sm">查看</button>
+        </div>
+        <div class="row">
+          <div class="row__main">
+            <div class="row__title">林听白 → 小白妈妈</div>
+            <div class="row__sub">关系：妈妈 · 07-26 15:04</div>
+          </div>
+          <span class="tag tag--gold">待审核</span>
+        </div>
+      </div>
+<p class="ds-note">右侧只能三选一：数值、单个按钮、单个标签。三者都想要时说明这行信息过载了，应该拆成卡片。头像只在「人」的列表里出现（学员、家长），事务性列表不用。</p></div><div class="ds-section"><p class="ds-label">分区标题</p><div class="section-title"><div>今日学员 · 2026-07-26</div><span class="text-small text-muted">共 12 人</span></div>
+       <div class="card"><p class="card__hint">分区标题在卡片外，用来切分同一页里的不同内容块。</p></div></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>数据展示</h3>
+          <p>积分 hero · 看板指标格 · 排行榜 · 流水</p>
+          <code>components/metrics-hero.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">积分 hero（家长端首屏）</p><div class="hero">
+        <p class="hero__label">张小满的积分余额</p>
+        <strong class="hero__value">128</strong>
+        <div class="hero__foot"><div>年级 三年级</div><div>我是妈妈</div></div>
+      </div>
+<p class="ds-note">每屏只出现一次，是家长打开小程序第一眼要看到的东西。渐变从 --c-primary 到 #3f7359。</p></div><div class="ds-section"><p class="ds-label">看板指标格</p><div class="grid grid--3">
+        <div class="metric"><strong>3</strong><span>待到班</span></div>
+        <div class="metric"><strong>5</strong><span>已到班</span></div>
+        <div class="metric"><strong>4</strong><span>辅导中</span></div>
+        <div class="metric is-alert"><strong>2</strong><span>待接</span></div>
+        <div class="metric"><strong>1</strong><span>已接走</span></div>
+        <div class="metric"><strong>2</strong><span>今日未交作业</span></div>
+      </div>
+<p class="ds-note"><code>.is-alert</code> 把数字变成陶土红，只给「待接」用 —— 一屏里最多一个告警指标。</p></div><div class="ds-section"><p class="ds-label">排行榜</p><div class="card">
+        <div class="rank rank--top1"><div class="rank__no">1</div><div class="row__main"><div class="row__title">小满</div></div><div class="row__value">86</div></div>
+        <div class="rank rank--top2"><div class="rank__no">2</div><div class="row__main"><div class="row__title">夏夏</div></div><div class="row__value">72</div></div>
+        <div class="rank rank--top3"><div class="rank__no">3</div><div class="row__main"><div class="row__title">小白</div></div><div class="row__value">65</div></div>
+        <div class="rank is-self"><div class="rank__no">4</div><div class="row__main"><div class="row__title">行行（我家）</div></div><div class="row__value">58</div></div>
+      </div>
+<p class="ds-note">家长端只显示昵称或脱敏姓名（张*明），这是隐私要求不能改。<code>.is-self</code> 给自家孩子加浅绿底，让家长一眼找到自己。</p></div><div class="ds-section"><p class="ds-label">积分流水</p><div class="card">
+        <div class="row"><div class="row__main"><div class="row__title">上周作业全部按时完成</div><div class="row__sub">表现奖励 · 07-24 17:30</div></div><div class="ledger__delta is-plus">+30</div></div>
+        <div class="row"><div class="row__main"><div class="row__title">兑换「自动铅笔」</div><div class="row__sub">兑换扣除 · 07-25 18:02</div></div><div class="ledger__delta is-minus">-35</div></div>
+        <div class="row"><div class="row__main"><div class="row__title is-reversed">发错人了</div><div class="row__sub">表现奖励 · 07-26 09:12</div></div><div class="ledger__delta is-plus is-reversed">+20</div></div>
+      </div>
+<p class="ds-note">被冲正的流水加删除线但<b>永不隐藏</b> —— 账目要能倒查，这是产品的硬规则。</p></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>表单</h3>
+          <p>输入 / 下拉 / 多行 / 开关 / 筛选条</p>
+          <code>components/forms.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">字段</p><div class="card">
+        <div class="field">
+          <label class="field__label">姓名 *</label>
+          <input value="张小满">
+        </div>
+        <div class="field">
+          <label class="field__label">年级</label>
+          <select><option>三年级</option></select>
+        </div>
+        <div class="field">
+          <label class="field__label">辅导反馈</label>
+          <textarea>口算又快又准，生字写得工整</textarea>
+          <p class="field__hint">反馈会直接展示给家长。</p>
+        </div>
+        <div class="field">
+          <label class="field__label">冲正原因 *</label>
+          <input value="" placeholder="必填，会记入审计日志">
+          <p class="field__error">请填写「冲正原因」</p>
+        </div>
+      </div></div><div class="ds-section"><p class="ds-label">开关行</p><div class="card">
+        <div class="row">
+          <div class="row__main"><div class="row__title">绑定码需要人工审核</div><div class="row__sub">关闭时家长输码即绑定</div></div>
+          <div class="switch is-on"></div>
+        </div>
+        <div class="row">
+          <div class="row__main"><div class="row__title">家长端排行显示真实姓名</div><div class="row__sub">默认关闭，只显示昵称或脱敏姓名</div></div>
+          <div class="switch"></div>
+        </div>
+      </div></div><div class="ds-section"><p class="ds-label">筛选条</p><div class="picker">
+        <button class="is-active">本周</button>
+        <button>本月</button>
+        <button>累计</button>
+      </div>
+      <div class="picker">
+        <button class="is-active">小满</button>
+        <button>夏夏</button>
+        <button>行行</button>
+      </div>
+<p class="ds-note">横向可滚动，不换行。绑了多个孩子的家长用它切换，超过 3 个时右侧要露出半个来暗示可滑。</p></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>导航</h3>
+          <p>导航栏 · 家长端/管理端两套 TabBar</p>
+          <code>components/navigation.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">导航栏</p><div style="border-radius:var(--r-md);overflow:hidden">
+        <div class="navbar" style="padding-top:12px"><div class="navbar__title">今日看板</div><div class="navbar__extra">王负责人</div></div>
+      </div>
+      <div style="border-radius:var(--r-md);overflow:hidden;margin-top:8px">
+        <div class="navbar" style="padding-top:12px">
+          <button class="navbar__back"><svg viewBox="0 0 24 24" class="tabbar__icon"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <div class="navbar__title">学员详情</div>
+        </div>
+      </div>
+<p class="ds-note">Tab 页没有返回箭头，详情页有 —— 和微信小程序的规矩一致。右侧只放一行说明文字，不放操作。</p></div><div class="ds-section"><p class="ds-label">TabBar · 家长端</p><div style="position:relative;height:56px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--c-line)">
+    <div class="tabbar" style="position:absolute;width:100%">
+      <div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="true"/></svg>
+            <div>今日「, 」M3 9h18M7 3v3m10-3v3M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>作业「, 」M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>成长「, 」M4 19V9m5 10V5m5 14v-7m5 7V8</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>我的「, 」M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 8a8 8 0 0 1 16 0</div>
+          </div>
+    </div>
+  </div></div><div class="ds-section"><p class="ds-label">TabBar · 管理端</p><div style="position:relative;height:56px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--c-line)">
+    <div class="tabbar" style="position:absolute;width:100%">
+      <div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="true"/></svg>
+            <div>看板「, 」M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9-3h7v10h-7V10Z</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>作业「, 」M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>学员「, 」M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 9a7 7 0 0 1 14 0M17 8a2.5 2.5 0 1 0 0-5M18 20a6 6 0 0 0-2-4.5</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>管理「, 」M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8.4-3a8.4 8.4 0 0 0-.13-1.45l2.06-1.6-2-3.46-2.43.98a8.4 8.4 0 0 0-2.5-1.45L15 2.4h-4l-.4 2.62a8.4 8.4 0 0 0-2.5 1.45l-2.43-.98-2 3.46 2.06 1.6a8.4 8.4 0 0 0 0 2.9l-2.06 1.6 2 3.46 2.43-.98a8.4 8.4 0 0 0 2.5 1.45L11 21.6h4l.4-2.62a8.4 8.4 0 0 0 2.5-1.45l2.43.98 2-3.46-2.06-1.6c.09-.47.13-.96.13-1.45Z</div>
+          </div>
+    </div>
+  </div>
+<p class="ds-note"><b>图标必须是线性 SVG，禁止用 emoji</b>（规格 design.md §4.5 硬性要求）。线宽统一 1.7，端点和拐角都是圆的。微信小程序原生 tabBar 最多 5 项，我们用 4 项，改版时别超。</p></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>弹层与反馈</h3>
+          <p>底部表单 / 确认框 / 轻提示 / 空态</p>
+          <code>components/overlays.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">底部表单面板</p><div style="border-radius:var(--r-lg);overflow:hidden;background:rgba(30,38,32,.45);padding-top:20px">
+        <div class="sheet" style="animation:none">
+          <h3 class="sheet__title">结束今天的作业</h3>
+          <p class="card__hint" style="margin-bottom:12px">反馈会直接展示给家长。</p>
+          <div class="field"><label class="field__label">辅导反馈 *</label><textarea style="min-height:60px">口算又快又准</textarea></div>
+          <div class="field"><label class="field__label">奖励积分</label><input value="10"></div>
+          <div class="btn-row"><button class="btn btn--ghost" style="flex:1">取消</button><button class="btn btn--primary" style="flex:2">确认结束</button></div>
+        </div>
+      </div>
+<p class="ds-note">取消:确认 = 1:2 的宽度比，主操作永远在右。</p></div><div class="ds-section"><p class="ds-label">确认框</p><div style="border-radius:var(--r-lg);background:rgba(30,38,32,.45);padding:20px;display:flex;justify-content:center">
+        <div class="dialog">
+          <h3 class="dialog__title">停用这名学员？</h3>
+          <p class="dialog__body">停用后不再产生新记录，历史数据全部保留。</p>
+          <div class="btn-row"><button class="btn btn--ghost" style="flex:1">取消</button><button class="btn btn--danger" style="flex:1">确定</button></div>
+        </div>
+      </div></div><div class="ds-section"><p class="ds-label">轻提示</p><div style="border-radius:var(--r-lg);background:var(--c-surface-2);padding:20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div class="toast" style="position:static;transform:none">已发放 30 分</div>
+        <div class="toast toast--error" style="position:static;transform:none">家长还没绑定，提醒已记录但没发出去，请电话联系</div>
+      </div>
+<p class="ds-note">失败提示用深红底。<b>通知没发成功时绝不能用绿色成功态</b> —— 这是产品底线，不能为了好看改掉。</p></div><div class="ds-section"><p class="ds-label">空态与加载</p><div class="card"><div class="empty">今天还没有家长提交作业</div></div>
+       <div class="card"><div class="loading">加载中…</div></div></div></div>
+      </article>
+    </section><section id="g-%E7%BB%91%E5%AE%9A%E7%A0%81" class="ds-group">
+      <h2>绑定码</h2>
+      <article class="ds-card">
+        <header>
+          <h3>绑定码输入框</h3>
+          <p>空 / 输入中 / 校验通过 / 校验失败</p>
+          <code>binding-code/code-input.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">四种状态</p><div class="card">
+        <div class="field">
+          <label class="field__label">空</label>
+          <input class="code-input" placeholder="····-····" value="">
+        </div>
+        <div class="field">
+          <label class="field__label">输入中</label>
+          <input class="code-input" value="K3M9-Q">
+          <p class="field__hint">还差 2 位</p>
+        </div>
+        <div class="field">
+          <label class="field__label">校验通过</label>
+          <input class="code-input is-valid" value="K3M9-QX2T">
+          <div class="code-preview"><span class="tag">已找到</span><div>张** · 三年级</div></div>
+        </div>
+        <div class="field">
+          <label class="field__label">校验失败</label>
+          <input class="code-input is-invalid" value="AAAA-AAAA">
+          <p class="field__error">绑定码不正确，请检查是否输错</p>
+        </div>
+      </div></div><p class="ds-note"><b>这是整个产品最关键的一个输入框</b>，家长第一次打开小程序就面对它。已经做进去的体验，改版时请保留：①边输边归一化：自动大写、第 5 位自动补短横、把误输的 O 纠正成 0、I/L 纠正成 1、全角转半角；②满 8 位先在本地验校验位，错了当场变红，不发网络请求；③校验位通过后才向服务端要一次脱敏姓名预览，让家长确认「绑的是自家娃」再提交。</p><div class="ds-section"><p class="ds-label">字符集说明</p><div class="card">
+        <p class="card__hint" style="margin-bottom:8px">Crockford Base32，共 32 个字符：</p>
+        <div class="mono" style="font-size:15px;line-height:1.9;word-break:break-all">0123456789ABCDEFGHJKMNPQRSTVWXYZ</div>
+        <p class="card__hint" style="margin-top:8px"><b>不含 I、L、O、U</b> —— 家长照着纸条手输时不会把 0 认成 O、1 认成 I 或 l。占位符用 <code>····-····</code> 而不是 <code>XXXX-XXXX</code>，避免暗示「这里要填字母 X」。</p>
+      </div></div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>绑定码牌子</h3>
+          <p>管理端展示 · 启用/停用 · 弹窗大字版</p>
+          <code>binding-code/code-plate.html</code>
+        </header>
+        <div class="ds-frame"><div class="ds-section"><p class="ds-label">学员卡片上的牌子</p><div class="card">
+        <div class="card__title"><div>张小满（小满）</div><span class="tag">三年级</span></div>
+        <div class="code-plate">
+          <div><div class="code-plate__label">绑定码</div><div class="code-plate__code">K3M9-QX2T</div></div>
+          <button class="btn btn--sm">复制</button>
+        </div>
+        <div class="spread" style="margin-top:10px"><span class="text-small text-muted">128 分</span><button class="btn btn--sm">详情</button></div>
+      </div></div><div class="ds-section"><p class="ds-label">停用态</p><div class="card">
+        <div class="code-plate is-disabled">
+          <div><div class="code-plate__label">绑定码已停用</div><div class="code-plate__code">K3M9-QX2T</div></div>
+          <button class="btn btn--sm">复制</button>
+        </div>
+      </div>
+<p class="ds-note">停用后底色变灰绿。码本身仍然显示 —— 负责人需要知道是哪个码被停了。</p></div><div class="ds-section"><p class="ds-label">新建学员后的弹窗</p><div style="border-radius:var(--r-lg);background:rgba(30,38,32,.45);padding:20px;display:flex;justify-content:center">
+        <div class="dialog">
+          <h3 class="dialog__title">张小满 的绑定码</h3>
+          <div class="code-plate" style="justify-content:center;margin:4px 0 12px"><div class="code-plate__code">K3M9-QX2T</div></div>
+          <p class="dialog__body">把这串码给家长，他们在小程序里输入即可绑定。这个码固定不变，爸爸妈妈可以用同一个码分别绑定。</p>
+          <div class="btn-row"><button class="btn btn--ghost" style="flex:1">复制</button><button class="btn btn--primary" style="flex:1">知道了</button></div>
+        </div>
+      </div>
+<p class="ds-note">老师建完学员就是照着这个弹窗把码抄到纸条上给家长的，所以码必须是全屏最大的元素。等宽字体 + 0.14em 字距，短横分成 4-4 两组便于口述。</p></div></div>
+      </article>
+    </section><section id="g-Screens" class="ds-group">
+      <h2>Screens</h2>
+      <article class="ds-card">
+        <header>
+          <h3>登录页 · 家长</h3>
+          <p>产品入口，输码即绑定</p>
+          <code>screens/login-guardian.html</code>
+        </header>
+        <div class="ds-frame ds-frame--screen"><div class="login" style="min-height:844px">
+    <div class="login__brand">
+      <div class="login__mark">芽</div>
+      <h1>暖芽辅导班</h1>
+      <p>输入辅导班给的绑定码，就能看到孩子的每一天</p>
+    </div>
+    <div class="login__card">
+      <div class="field"><label class="field__label">孩子的绑定码</label><input class="code-input is-valid" value="K3M9-QX2T">
+        <div class="code-preview"><span class="tag">已找到</span><div>张** · 三年级</div></div>
+      </div>
+      <div class="field"><label class="field__label">你和孩子的关系</label><select><option>妈妈</option></select></div>
+      <div class="field"><label class="field__label">你的称呼（选填）</label><input placeholder="老师这样称呼你，例如「小满妈妈」"></div>
+      <button class="btn btn--primary btn--block" style="margin-top:14px">绑定孩子</button>
+    </div>
+    <div class="login__switch"><button class="is-active">我是家长</button><button>老师 / 负责人</button></div>
+    <p class="card__hint" style="margin-top:18px;text-align:center">绑定码由辅导班在建立学员档案时生成，一人一码、固定不变。</p>
+  </div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>家长端 · 今日</h3>
+          <p>家长打开小程序的第一屏</p>
+          <code>screens/guardian-today.html</code>
+        </header>
+        <div class="ds-frame ds-frame--screen"><div class="shell shell--tabbed" style="height:844px;position:relative">
+    <div class="navbar" style="padding-top:12px"><div class="navbar__title">今日</div></div>
+    <div class="page">
+      <div class="hero">
+        <p class="hero__label">张小满的积分余额</p>
+        <strong class="hero__value">128</strong>
+        <div class="hero__foot"><div>年级 三年级</div><div>我是妈妈</div></div>
+      </div>
+      <div class="card">
+        <div class="card__title"><div>今天在班里</div></div>
+        <div class="row"><div class="row__main"><div class="row__title">今日作业</div><div class="row__sub">2 项 · 辅导中</div></div><button class="btn btn--sm">查看</button></div>
+        <div class="row"><div class="row__main"><div class="row__title">预计 17:30 可以接走</div><div class="row__sub">老师发送于 07-26 17:00</div></div><span class="tag tag--accent">已发送</span></div>
+      </div>
+      <div class="card">
+        <div class="card__title"><div>最近积分</div><button class="btn btn--sm">全部</button></div>
+        <div class="row"><div class="row__main"><div class="row__title">上周作业全部按时完成</div><div class="row__sub">表现奖励 · 07-24 17:30</div></div><div class="ledger__delta is-plus">+30</div></div>
+        <div class="row"><div class="row__main"><div class="row__title">兑换「自动铅笔」</div><div class="row__sub">兑换扣除 · 07-25 18:02</div></div><div class="ledger__delta is-minus">-35</div></div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:56px">
+    <div class="tabbar" style="position:absolute;width:100%">
+      <div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="true"/></svg>
+            <div>今日「, 」M3 9h18M7 3v3m10-3v3M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>作业「, 」M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>成长「, 」M4 19V9m5 10V5m5 14v-7m5 7V8</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>我的「, 」M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 8a8 8 0 0 1 16 0</div>
+          </div>
+    </div>
+  </div>
+  </div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>管理端 · 今日看板</h3>
+          <p>老师每天盯的那一屏</p>
+          <code>screens/admin-board.html</code>
+        </header>
+        <div class="ds-frame ds-frame--screen"><div class="shell shell--tabbed" style="height:844px;position:relative">
+    <div class="navbar" style="padding-top:12px"><div class="navbar__title">今日看板</div><div class="navbar__extra">王负责人</div></div>
+    <div class="page">
+      <div class="grid grid--3" style="margin-bottom:10px">
+        <div class="metric"><strong>3</strong><span>待到班</span></div>
+        <div class="metric"><strong>5</strong><span>已到班</span></div>
+        <div class="metric"><strong>4</strong><span>辅导中</span></div>
+        <div class="metric is-alert"><strong>2</strong><span>待接</span></div>
+        <div class="metric"><strong>1</strong><span>已接走</span></div>
+        <div class="metric"><strong>2</strong><span>今日未交作业</span></div>
+      </div>
+      <div class="card">
+        <div class="card__title"><div>要处理的事</div></div>
+        <div class="row"><div class="row__main"><div class="row__title">1 条家长绑定申请待审核</div></div><button class="btn btn--sm">去处理</button></div>
+        <div class="row"><div class="row__main"><div class="row__title">2 份作业已完成但还没发积分</div></div><button class="btn btn--sm">去处理</button></div>
+      </div>
+      <div class="section-title"><div>今日学员 · 2026-07-26</div></div>
+      <div class="card">
+        <div class="card__title"><div>张小满（小满）</div><span class="tag tag--gold">辅导中</span></div>
+        <div class="row__sub">三年级 · 128 分 · 作业辅导中</div>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn btn--sm">可以接走</button>
+          <button class="btn btn--sm btn--accent">发接娃提醒</button>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:56px">
+    <div class="tabbar" style="position:absolute;width:100%">
+      <div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="true"/></svg>
+            <div>看板「, 」M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9-3h7v10h-7V10Z</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>作业「, 」M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>学员「, 」M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 9a7 7 0 0 1 14 0M17 8a2.5 2.5 0 1 0 0-5M18 20a6 6 0 0 0-2-4.5</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>管理「, 」M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8.4-3a8.4 8.4 0 0 0-.13-1.45l2.06-1.6-2-3.46-2.43.98a8.4 8.4 0 0 0-2.5-1.45L15 2.4h-4l-.4 2.62a8.4 8.4 0 0 0-2.5 1.45l-2.43-.98-2 3.46 2.06 1.6a8.4 8.4 0 0 0 0 2.9l-2.06 1.6 2 3.46 2.43-.98a8.4 8.4 0 0 0 2.5 1.45L11 21.6h4l.4-2.62a8.4 8.4 0 0 0 2.5-1.45l2.43.98 2-3.46-2.06-1.6c.09-.47.13-.96.13-1.45Z</div>
+          </div>
+    </div>
+  </div>
+  </div></div>
+      </article><article class="ds-card">
+        <header>
+          <h3>管理端 · 学员与绑定码</h3>
+          <p>老师抄码给家长的那一屏</p>
+          <code>screens/admin-students.html</code>
+        </header>
+        <div class="ds-frame ds-frame--screen"><div class="shell shell--tabbed" style="height:844px;position:relative">
+    <div class="navbar" style="padding-top:12px"><div class="navbar__title">学员</div></div>
+    <div class="page">
+      <button class="btn btn--primary btn--block" style="margin-bottom:12px">新增学员（自动生成绑定码）</button>
+      <div class="card">
+        <div class="card__title"><div>张小满（小满）</div><span class="tag">三年级</span></div>
+        <div class="code-plate" style="margin-top:10px">
+          <div><div class="code-plate__label">绑定码</div><div class="code-plate__code">K3M9-QX2T</div></div>
+          <button class="btn btn--sm">复制</button>
+        </div>
+        <div class="spread" style="margin-top:10px"><span class="text-small text-muted">128 分</span><button class="btn btn--sm">详情</button></div>
+      </div><div class="card">
+        <div class="card__title"><div>陈知夏（夏夏）</div><span class="tag">四年级</span></div>
+        <div class="code-plate" style="margin-top:10px">
+          <div><div class="code-plate__label">绑定码</div><div class="code-plate__code">7QPK-C8DC</div></div>
+          <button class="btn btn--sm">复制</button>
+        </div>
+        <div class="spread" style="margin-top:10px"><span class="text-small text-muted">72 分</span><button class="btn btn--sm">详情</button></div>
+      </div><div class="card">
+        <div class="card__title"><div>林听白（小白）</div><span class="tag">二年级</span></div>
+        <div class="code-plate is-disabled" style="margin-top:10px">
+          <div><div class="code-plate__label">绑定码已停用</div><div class="code-plate__code">ZEDM-TZG5</div></div>
+          <button class="btn btn--sm">复制</button>
+        </div>
+        <div class="spread" style="margin-top:10px"><span class="text-small text-muted">15 分</span><button class="btn btn--sm">详情</button></div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:56px">
+    <div class="tabbar" style="position:absolute;width:100%">
+      <div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>看板「, 」M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9-3h7v10h-7V10Z</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>作业「, 」M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 0v6h6M9 13h6M9 17h4</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="true"/></svg>
+            <div>学员「, 」M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-7 9a7 7 0 0 1 14 0M17 8a2.5 2.5 0 1 0 0-5M18 20a6 6 0 0 0-2-4.5</div>
+          </div><div class="tabbar__item">
+            <svg viewBox="0 0 24 24" class="tabbar__icon"><path d="false"/></svg>
+            <div>管理「, 」M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8.4-3a8.4 8.4 0 0 0-.13-1.45l2.06-1.6-2-3.46-2.43.98a8.4 8.4 0 0 0-2.5-1.45L15 2.4h-4l-.4 2.62a8.4 8.4 0 0 0-2.5 1.45l-2.43-.98-2 3.46 2.06 1.6a8.4 8.4 0 0 0 0 2.9l-2.06 1.6 2 3.46 2.43-.98a8.4 8.4 0 0 0 2.5 1.45L11 21.6h4l.4-2.62a8.4 8.4 0 0 0 2.5-1.45l2.43.98 2-3.46-2.06-1.6c.09-.47.13-.96.13-1.45Z</div>
+          </div>
+    </div>
+  </div>
+  </div></div>
+      </article>
+    </section></div>
+</body>
+</html>

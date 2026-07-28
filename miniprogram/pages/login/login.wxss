@@ -1,0 +1,8 @@
+/* 登录页的骨架样式都在 app.wxss（.login / .login__card / .code-input），
+   这里只补一条：绑定码输入框下方留固定高度，
+   让"还差 N 位 / 格式正确 / 错误"三种提示切换时按钮不上下跳。 */
+
+.field__hint,
+.field__error {
+  min-height: 34rpx;
+}

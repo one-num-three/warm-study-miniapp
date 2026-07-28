@@ -1,0 +1,60 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">加载中…</view>
+
+  <view class="error-box" wx:elif="{{error}}">
+    <text class="error-box__text">{{error}}</text>
+    <view class="btn btn--sm" bindtap="load" hover-class="btn--hover">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- 没有 product.manage 的人看不到这个入口 -->
+    <view
+      wx:if="{{canManage}}"
+      class="btn btn--primary btn--block products__create"
+      bindtap="onCreate"
+      hover-class="btn--hover"
+    >
+      新增商品
+    </view>
+
+    <view class="empty" wx:if="{{products.length === 0}}">还没有商品</view>
+
+    <block wx:else>
+      <view class="card" wx:for="{{products}}" wx:key="id" wx:for-item="item">
+        <view class="card__title">
+          <text>{{item.name}}</text>
+          <text class="{{item.tagClass}}">{{item.status}}</text>
+        </view>
+
+        <view class="row__sub">{{item.subText}}</view>
+
+        <view class="btn-row products__actions" wx:if="{{canManage}}">
+          <view class="btn btn--sm" data-id="{{item.id}}" bindtap="onEdit" hover-class="btn--hover">
+            编辑
+          </view>
+          <view class="btn btn--sm" data-id="{{item.id}}" bindtap="onEditStock" hover-class="btn--hover">
+            改库存
+          </view>
+          <view
+            class="btn btn--sm btn--ghost"
+            data-id="{{item.id}}"
+            bindtap="onToggleStatus"
+            hover-class="btn--hover"
+          >
+            {{item.toggleText}}
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <form-modal
+    show="{{formShow}}"
+    title="{{formTitle}}"
+    hint="{{formHint}}"
+    fields="{{formFields}}"
+    submitText="{{formSubmitText}}"
+    bind:submit="onFormSubmit"
+    bind:cancel="onFormCancel"
+  />
+</view>

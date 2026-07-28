@@ -1,0 +1,11 @@
+/* 商品与库存的私有样式。骨架（.card / .btn-row / .tag）都来自 app.wxss，这里只补两处间距。 */
+
+/* 顶部主按钮和第一张商品卡之间要断开，否则看起来像卡片的一部分 */
+.products__create {
+  margin-bottom: 24rpx;
+}
+
+/* 三个操作按钮紧贴在"多少分 · 库存"下面会挤，留一行呼吸 */
+.products__actions {
+  margin-top: 20rpx;
+}
