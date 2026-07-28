@@ -8,6 +8,7 @@
 import { messageForCode } from "../shared/errors.js";
 
 const TOKEN_KEY = "warm-study.token";
+const DEVELOPMENT_IDENTITY_KEY = "warm-study.development-identity";
 
 /** 后端地址。真机调试和上线时改成你自己的域名（并在小程序后台配置 request 合法域名）。 */
 export const API_BASE = "http://localhost:8787/api";
@@ -132,4 +133,31 @@ export function wxLoginCode(): Promise<string> {
       fail: () => reject(new ApiError("INTERNAL", "微信登录失败", 0)),
     });
   });
+}
+
+/**
+ * 真实微信环境里，后端会用 code 换取稳定 OPENID；开发环境没有 AppSecret 时，
+ * 后端才使用这里保存的安装标识。它绝不替代生产身份，且不会随 wx.login 的临时
+ * code 改变，因而本地刷新、重启开发者工具后仍可恢复同一测试账号。
+ */
+function developmentIdentity(): string {
+  const existing = wx.getStorageSync(DEVELOPMENT_IDENTITY_KEY);
+  if (typeof existing === "string" && existing) return existing;
+
+  const created = `mp-dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  wx.setStorageSync(DEVELOPMENT_IDENTITY_KEY, created);
+  return created;
+}
+
+/** 微信登录请求的统一载荷，避免业务页面误把一次性 code 当作稳定身份。 */
+export async function wechatLoginPayload(): Promise<{
+  loginType: "wechat";
+  code: string;
+  developmentIdentity: string;
+}> {
+  return {
+    loginType: "wechat",
+    code: await wxLoginCode(),
+    developmentIdentity: developmentIdentity(),
+  };
 }

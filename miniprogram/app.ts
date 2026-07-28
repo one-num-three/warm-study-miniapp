@@ -12,7 +12,7 @@
  * 再套一层订阅机制只会增加心智负担；页面在 onShow 里读一次 globalData 就够了。
  */
 
-import { api, setToken, wxLoginCode, ApiError } from "./utils/api";
+import { api, setToken, wechatLoginPayload, ApiError } from "./utils/api";
 
 /** 外壳：登录页 / 家长端 / 管理端。双身份用户显式切换，两边数据不混（design §1.1）。 */
 export type Shell = "login" | "guardian" | "admin";
@@ -69,8 +69,7 @@ App({
         global.bootError = error.message;
       }
       try {
-        const code = await wxLoginCode();
-        const result = await api.post<any>("/auth/login", { loginType: "wechat", code });
+        const result = await api.post<any>("/auth/login", await wechatLoginPayload());
         setToken(result.token);
         this.applyProfile(result.profile);
         global.bootError = "";

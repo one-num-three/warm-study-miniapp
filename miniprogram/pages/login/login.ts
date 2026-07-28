@@ -12,7 +12,7 @@
  */
 
 import { normalizeBindingCode, validateBindingCode } from "../../shared/binding-code.js";
-import { api, ApiError, setToken, toast, toastError, wxLoginCode } from "../../utils/api";
+import { api, ApiError, setToken, toast, toastError, wechatLoginPayload } from "../../utils/api";
 
 const RELATIONS = ["妈妈", "爸爸", "爷爷", "奶奶", "外公", "外婆", "其他家长"];
 
@@ -184,8 +184,7 @@ Page({
     const app = getApp<any>();
     if (app.globalData.profile) return true;
     try {
-      const code = await wxLoginCode();
-      const result = await api.post<any>("/auth/login", { loginType: "wechat", code });
+      const result = await api.post<any>("/auth/login", await wechatLoginPayload());
       setToken(result.token);
       // 显式停在登录页：此时用户还没绑孩子，不该被弹进家长端
       app.applyProfile(result.profile, "login");

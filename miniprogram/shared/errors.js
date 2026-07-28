@@ -28,6 +28,8 @@ export const ERROR_CODES = {
     TOO_MANY_ATTEMPTS: "TOO_MANY_ATTEMPTS",
     /** 系统硬约束：最后一名有效负责人不可停用或降权 */
     LAST_OWNER_PROTECTED: "LAST_OWNER_PROTECTED",
+    /** 微信登录所需的服务端配置或微信身份交换暂不可用 */
+    WECHAT_LOGIN_UNAVAILABLE: "WECHAT_LOGIN_UNAVAILABLE",
     INTERNAL: "INTERNAL",
 };
 /** 错误码 → 面向用户的中文提示。两端共用，保证同一个码在小程序和 H5 上说法一致。 */
@@ -50,6 +52,7 @@ export const ERROR_MESSAGES = {
     BINDING_PENDING_REVIEW: "绑定申请已提交，请等待负责人审核",
     TOO_MANY_ATTEMPTS: "尝试次数过多，请稍后再试",
     LAST_OWNER_PROTECTED: "系统必须保留至少一名负责人，不能停用最后一名负责人",
+    WECHAT_LOGIN_UNAVAILABLE: "微信登录暂不可用，请稍后重试",
     INTERNAL: "服务开小差了，请稍后重试",
 };
 const DEFAULT_HTTP_STATUS = {
@@ -71,6 +74,7 @@ const DEFAULT_HTTP_STATUS = {
     BINDING_PENDING_REVIEW: 202,
     TOO_MANY_ATTEMPTS: 429,
     LAST_OWNER_PROTECTED: 409,
+    WECHAT_LOGIN_UNAVAILABLE: 503,
     INTERNAL: 500,
 };
 /** 业务异常。服务端捕获后统一转成 { success:false, code, message, requestId }。 */

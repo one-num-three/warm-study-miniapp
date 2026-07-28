@@ -17,6 +17,7 @@
  *   7. 两端设计令牌是否漂移（tokens.wxss 必须由 H5 的 styles.css 生成）
  *   8. shared/ 里是否用了小程序基础库可能没有的 JS API
  *   9. 接口路径是否都能在 shared 的 ENDPOINTS 契约里找到
+ *  10. 微信登录是否始终附带稳定的开发安装标识（避免本地把临时 code 当身份）
  *
  * 用法：npm run check:mp
  */
@@ -317,6 +318,18 @@ for (const file of logicFiles) {
     if (!known) {
       fail(rel, `调用了契约里没有的接口路径 ${m[1]}`);
     }
+  }
+}
+
+/* --------------------- 10. 微信开发身份登录必须走统一载荷 --------------------- */
+
+for (const relativePath of ["miniprogram/app.ts", "miniprogram/pages/login/login.ts"]) {
+  const code = read(join(root, relativePath));
+  if (!code.includes("wechatLoginPayload")) {
+    fail(relativePath, "微信登录必须调用 wechatLoginPayload()，以附带稳定开发安装标识");
+  }
+  if (code.includes("wxLoginCode")) {
+    fail(relativePath, "不得直接调用 wxLoginCode()；请使用 wechatLoginPayload()");
   }
 }
 
