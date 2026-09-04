@@ -14,5 +14,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src"]
+  "files": [],
+  "references": [
+    { "path": "shared" },
+    { "path": "server" }
+  ]
 }

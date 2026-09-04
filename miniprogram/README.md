@@ -10,8 +10,8 @@
 1. 下载并安装 [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)（稳定版即可）。
 2. 打开工具 → 「导入项目」。
 3. **目录**选到本目录 `miniprogram/`（**不是**仓库根目录 —— 根目录下还有 `server/`、`h5/`，选错了会把它们一起打进包里）。
-4. **AppID** 填你自己的小程序 AppID；只是本地看看效果的话选「测试号」或直接用工具里的「不使用 AppID / 游客模式」。
-   `project.config.json` 里预置的是 `touristappid`，这只是占位，不能上线。
+4. **AppID** 填你自己的小程序 AppID；只是本地查看页面时可以使用工具里的测试模式。
+   `project.config.json` 里的值仅是开发占位，不能直接上线。真实 AppID 必须和服务端环境变量保持一致。
 5. 语言选 TypeScript —— `project.config.json` 已经开好 `useCompilerPlugins: ["typescript"]`，工具会自动把 `.ts` 编译成 `.js`，你不用手动跑 tsc。
 
 导入后直接点「编译」，模拟器里会先落在登录页。
@@ -20,10 +20,10 @@
 
 ## 二、改后端地址（API_BASE）
 
-后端地址写在 **`utils/api.ts` 第 13 行**：
+后端地址写在 **`utils/api.ts`**：
 
 ```ts
-export const API_BASE = "http://localhost:8787/api";
+export const API_BASE = "https://你的-api-域名.example.com/api";
 ```
 
 - **本地联调**：先在仓库根目录跑 `npm run dev`（会同时起后端和 H5），后端默认监听 `8787`。
@@ -31,14 +31,7 @@ export const API_BASE = "http://localhost:8787/api";
   否则 `http://localhost` 的请求会被工具拦掉。
 - **真机调试 / 上线**：把它改成你自己的 HTTPS 域名，例如 `https://api.example.com/api`。
 
-首次进入需要后端有数据，可以在仓库根目录执行：
-
-```bash
-npm run seed          # 灌演示数据（含演示账号）
-```
-
-演示账号：负责人 `owner / warm2026`，老师 `teacher / warm2026`。
-登录页「老师 / 负责人」这一栏里有「用负责人账号快速登录」按钮。
+首次进入需要后端有数据。演示数据只允许在隔离的本地开发数据库中使用；生产环境必须通过一次性安全 bootstrap 创建负责人，禁止使用固定演示账号或快速登录入口。具体步骤见[上线执行计划](../docs/上线执行计划.md)。
 
 ---
 
@@ -77,9 +70,7 @@ npm run seed          # 灌演示数据（含演示账号）
    一次授权只能发一条，长期订阅需要单独申请权限。
 3. 服务端在发提醒时调用微信的 `subscribeMessage.send` 接口，用家长的 OPENID + 模板 ID 推送。
 
-**当前实现的诚实说明**：`POST /reminders` 现在只把提醒**记进数据库**，返回值里的 `delivered` 表示"有没有已绑定的家长可通知"。
-管理端看板在 `delivered === false` 时会明确提示「家长还没绑定，提醒已记录但没发出去，请电话联系」，
-不会把没发出去的提醒说成"已通知"。家长端是在「今日」页里主动拉取最新提醒来展示的。
+**当前实现的诚实说明**：`POST /reminders` 现在只把提醒**记进数据库**，没有调用微信订阅消息接口。返回值只能表示“提醒记录已创建”，不能表示家长已经收到微信消息。真实发送完成前，管理端不得显示“已通知家长”；家长端目前通过主动拉取“今日”数据看到站内提醒。
 
 ---
 
@@ -151,7 +142,7 @@ miniprogram/
 
 ### 2. 图标为什么是 WXSS 里的一串 data URI
 
-`design.md §4.5` 明确要求「图标统一使用同一套专业线性图标的本地资源，不使用 emoji 作为功能图标」。
+设计系统约束明确要求「图标统一使用同一套专业线性图标的本地资源，不使用 emoji 作为功能图标」。
 `components/tab-bar/index.wxss` 里的图标是内联的线性 SVG（`background-image: url("data:image/svg+xml,...")`），
 路径与 `h5/src/icons.ts` 完全相同，未选中 `#9aa79d`、选中 `#2f5b45` 各一份。
 没用 `<image src="data:image/svg+xml;base64,...">`，是因为 `<image>` 组件对 SVG 的支持在不同基础库版本上有差异，

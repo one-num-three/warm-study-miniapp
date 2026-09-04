@@ -2,12 +2,15 @@
   "description": "暖芽辅导班小程序",
   "packOptions": {
     "ignore": [
-      { "type": "folder", "value": "shared/README.md" }
+      {
+        "value": "shared/README.md",
+        "type": "folder"
+      }
     ],
     "include": []
   },
   "setting": {
-    "urlCheck": false,
+    "urlCheck": true,
     "es6": true,
     "enhance": true,
     "postcss": true,
@@ -40,16 +43,25 @@
     "minifyWXSS": true,
     "disableUseStrict": false,
     "showES6CompileOption": false,
-    "useCompilerPlugins": ["typescript"],
-    "ignoreUploadUnusedFiles": true
+    "useCompilerPlugins": [
+      "typescript"
+    ],
+    "ignoreUploadUnusedFiles": true,
+    "compileWorklet": false,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "compileType": "miniprogram",
   "libVersion": "3.5.5",
-  "appid": "touristappid",
+  "appid": "wx43870ba35bc64cac",
   "projectname": "warm-study",
   "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
-  }
+  },
+  "simulatorPluginLibVersion": {}
 }

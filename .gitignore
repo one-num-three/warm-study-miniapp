@@ -1,12 +1,16 @@
 node_modules/
 dist/
 .vite/
+artifacts/
 .worktrees/
 .DS_Store
 *.log
 .env
 .env.*
 !.env.example
+
+# 微信开发者工具本机偏好，不提交到公开仓库
+miniprogram/project.private.config.json
 
 # 后端数据库文件（首次启动自动生成，不入库）
 server/data/

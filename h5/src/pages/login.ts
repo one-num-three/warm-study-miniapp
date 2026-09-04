@@ -358,23 +358,6 @@ function staffCard(container: HTMLElement): HTMLElement {
     div({ class: "field" }, el("label", { class: "field__label" }, "登录名"), username),
     div({ class: "field" }, el("label", { class: "field__label" }, "密码"), password),
     submit,
-    div({ class: "divider" }),
-    p(
-      { class: "card__hint" },
-      "演示账号：负责人 owner / warm2026，老师 teacher / warm2026",
-    ),
-    button(
-      {
-        class: "btn btn--sm",
-        style: "margin-top:8px",
-        onClick: () => {
-          username.value = "owner";
-          password.value = "warm2026";
-          void doLogin();
-        },
-      },
-      "用负责人账号快速登录",
-    ),
   );
   void container;
   return card;

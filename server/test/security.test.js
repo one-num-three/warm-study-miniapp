@@ -407,7 +407,8 @@ test("跨天的接娃时间被拒绝（HH:mm 表达不了明天）", async () =>
     await post(
       ctx.base,
       "/reminders",
-      { studentId: student.id, minutes: 600, requestId: reqId() },
+      // 固定加 24 小时，避免测试依赖执行时刻（例如凌晨执行时 600 分钟仍在当天）。
+      { studentId: student.id, minutes: 24 * 60, requestId: reqId() },
       staffToken,
     ),
     "INVALID_ARGUMENT",

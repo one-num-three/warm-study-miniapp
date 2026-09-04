@@ -5,7 +5,7 @@
   "type": "module",
   "description": "暖芽辅导班 —— 微信小程序 + H5 双端，共享核心领域逻辑，Node + SQLite 后端",
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=22.9.0"
   },
   "workspaces": [
     "shared",
@@ -19,14 +19,15 @@
     "build:design": "node scripts/build-design-system.mjs",
     "build:wxss": "node scripts/build-miniprogram-wxss.mjs",
     "check:mp": "node scripts/check-miniprogram.mjs",
-    "build": "npm run build:shared && npm run sync:shared && npm run build:server && npm run build:h5",
+    "build": "npm run build:shared && npm run sync:shared && npm run build:wxss && npm run build:server && npm run build:h5",
     "sync:shared": "node scripts/sync-shared-to-miniprogram.mjs",
     "dev:server": "npm run dev --workspace server",
     "dev:h5": "npm run dev --workspace h5",
     "dev": "node scripts/dev.mjs",
+    "clean": "node scripts/clean.mjs",
     "seed": "npm run seed --workspace server",
-    "test": "npm run build:shared && npm run test --workspace shared && npm run test --workspace server && npm run check:mp",
-    "test:e2e": "node scripts/e2e.mjs",
+    "test": "npm run build:shared && npm run build:server && npm run test --workspace shared && npm run test --workspace server && npm run check:mp",
+    "test:e2e": "npm run build:server && node scripts/e2e.mjs",
     "typecheck": "tsc -b shared server --force"
   },
   "devDependencies": {

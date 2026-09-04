@@ -273,13 +273,6 @@ Page({
     }
   },
 
-  /** 演示环境的快捷登录，方便验收时不用手输 */
-  quickOwnerLogin() {
-    this.setData({ username: "owner", password: "warm2026" }, () => {
-      void this.onStaffLogin();
-    });
-  },
-
   /** 启动失败后的重试 */
   async retryBoot() {
     const app = getApp<any>();

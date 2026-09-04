@@ -105,11 +105,6 @@
       >
         {{staffLogging ? '登录中…' : '登录管理端'}}
       </view>
-      <view class="divider"></view>
-      <view class="card__hint">演示账号：负责人 owner / warm2026，老师 teacher / warm2026</view>
-      <view class="btn btn--sm" style="margin-top:16rpx" bindtap="quickOwnerLogin" hover-class="btn--hover">
-        用负责人账号快速登录
-      </view>
     </view>
 
     <!-- 身份切换 -->

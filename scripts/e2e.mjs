@@ -4,10 +4,10 @@
  * 老师辅导发分 → 现场兑换」这条主链路完整走一遍，每步截图。
  *
  * 运行：npm run test:e2e
- * 截图输出到 docs/screenshots/
+ * 截图输出到被 Git 忽略的 artifacts/e2e/
  */
 
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { chromium } from "playwright";
 import { mkdirSync, rmSync, existsSync } from "node:fs";
 import { createServer } from "node:net";
@@ -16,7 +16,7 @@ import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SHOTS = join(root, "docs", "screenshots");
+const SHOTS = join(root, "artifacts", "e2e");
 const DB_PATH = join(tmpdir(), `warm-study-e2e-${Date.now()}.db`);
 
 /**
@@ -113,10 +113,26 @@ function stopProcesses() {
     if (!proc || proc.killed || proc.pid === undefined) continue;
     try {
       // 杀整个进程组：npm 会再 fork 出 node/vite，只杀 npm 会留下孤儿进程
-      if (isWindows) proc.kill("SIGTERM");
-      else process.kill(-proc.pid, "SIGKILL");
+      if (isWindows) {
+        spawnSync("taskkill", ["/pid", String(proc.pid), "/t", "/f"], { stdio: "ignore" });
+      } else process.kill(-proc.pid, "SIGKILL");
     } catch {
       /* 已经退出了 */
+    }
+  }
+}
+
+async function removeWithRetry(file, attempts = 12) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      rmSync(file, { force: true });
+      return;
+    } catch (error) {
+      if (!isWindows || !["EBUSY", "EPERM"].includes(error?.code) || attempt === attempts - 1) {
+        console.warn(`无法清理临时文件 ${file}：${error?.message ?? error}`);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 150));
     }
   }
 }
@@ -573,7 +589,7 @@ async function main() {
 
   await browser.close();
 
-  console.log(`\n截图已保存到 docs/screenshots/（共 ${stepIndex} 张）`);
+  console.log(`\n截图已保存到 artifacts/e2e/（共 ${stepIndex} 张）`);
   if (failures > 0) {
     console.error(`\n端到端验收失败：${failures} 项\n`);
     process.exitCode = 1;
@@ -587,10 +603,13 @@ main()
     console.error("\n端到端脚本异常：", error);
     process.exitCode = 1;
   })
-  .finally(() => {
+  .finally(async () => {
     stopProcesses();
-    rmSync(DB_PATH, { force: true });
-    rmSync(`${DB_PATH}-wal`, { force: true });
-    rmSync(`${DB_PATH}-shm`, { force: true });
+    await new Promise((resolve) => setTimeout(resolve, isWindows ? 250 : 50));
+    await Promise.all([
+      removeWithRetry(DB_PATH),
+      removeWithRetry(`${DB_PATH}-wal`),
+      removeWithRetry(`${DB_PATH}-shm`),
+    ]);
     setTimeout(() => process.exit(process.exitCode ?? 0), 400);
   });
