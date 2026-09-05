@@ -40,7 +40,9 @@ let API_PORT = 0;
 let WEB_PORT = 0;
 
 const isWindows = process.platform === "win32";
-const npm = isWindows ? "npm.cmd" : "npm";
+const node = process.execPath;
+const serverDir = join(root, "server");
+const viteScript = join(root, "node_modules", "vite", "bin", "vite.js");
 
 let serverProc;
 let webProc;
@@ -84,11 +86,12 @@ async function waitForUrl(url, timeoutMs = 60_000) {
 }
 
 function startProcesses() {
-  serverProc = spawn(npm, ["run", "start", "--workspace", "server"], {
-    cwd: root,
+  // 直接启动 Node/Vite，不经过 npm.cmd/cmd.exe。Windows 上 npm 的多层子进程
+  // 容易在测试结束后脱离进程树，继续占端口并锁住临时 SQLite 文件。
+  serverProc = spawn(node, ["--env-file-if-exists=../.env", "dist/index.js"], {
+    cwd: serverDir,
     env: { ...process.env, PORT: String(API_PORT), WARM_STUDY_DB: DB_PATH },
     stdio: ["ignore", "pipe", "pipe"],
-    shell: isWindows,
     detached: !isWindows,
   });
   serverProc.stdout.on("data", () => {});
@@ -97,11 +100,10 @@ function startProcesses() {
     if (!text.includes("ExperimentalWarning")) process.stderr.write(`[server] ${text}`);
   });
 
-  webProc = spawn(npm, ["run", "dev", "--workspace", "h5", "--", "--port", String(WEB_PORT), "--strictPort"], {
-    cwd: root,
+  webProc = spawn(node, [viteScript, "--host", "127.0.0.1", "--port", String(WEB_PORT), "--strictPort"], {
+    cwd: join(root, "h5"),
     env: { ...process.env, WARM_STUDY_API: `http://localhost:${API_PORT}` },
     stdio: ["ignore", "pipe", "pipe"],
-    shell: isWindows,
     detached: !isWindows,
   });
   webProc.stdout.on("data", () => {});
@@ -110,9 +112,9 @@ function startProcesses() {
 
 function stopProcesses() {
   for (const proc of [serverProc, webProc]) {
-    if (!proc || proc.killed || proc.pid === undefined) continue;
+    if (!proc || proc.pid === undefined) continue;
     try {
-      // 杀整个进程组：npm 会再 fork 出 node/vite，只杀 npm 会留下孤儿进程
+      // 直接进程仍可能有 esbuild 子进程，Windows 用 taskkill 递归结束整棵树。
       if (isWindows) {
         spawnSync("taskkill", ["/pid", String(proc.pid), "/t", "/f"], { stdio: "ignore" });
       } else process.kill(-proc.pid, "SIGKILL");
@@ -120,6 +122,18 @@ function stopProcesses() {
       /* 已经退出了 */
     }
   }
+}
+
+function waitForExit(proc, timeoutMs = 3000) {
+  if (!proc || proc.exitCode !== null) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(done, timeoutMs);
+    proc.once("exit", done);
+  });
 }
 
 async function removeWithRetry(file, attempts = 12) {
@@ -605,6 +619,7 @@ main()
   })
   .finally(async () => {
     stopProcesses();
+    await Promise.all([waitForExit(serverProc), waitForExit(webProc)]);
     await new Promise((resolve) => setTimeout(resolve, isWindows ? 250 : 50));
     await Promise.all([
       removeWithRetry(DB_PATH),
